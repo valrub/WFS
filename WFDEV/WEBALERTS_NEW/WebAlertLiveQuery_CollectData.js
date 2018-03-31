@@ -88,6 +88,8 @@ function main(re, ie, oe, executor) {
         for (var i in coll) {
           if (coll[i]["name"] === name) {
             res = coll[i]["query_id"].toString();
+            let v_data_count = coll[i]["data_count"].toString();
+            Logger.production('Total [' + v_data_count + '] records i query <' + name + '> #' + res); //LAST
             resolve(res);
           }
         }
