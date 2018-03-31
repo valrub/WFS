@@ -20,7 +20,7 @@ function main(re, ie, oe, executor) {
           isIpDefined = isIpDefined.trim();
           uriMainPart = "http://" + isIpDefined + ":3012";
         } else {
-          uriMainPart = "http://" + CU1 + ":3012";
+          uriMainPart = "http://" + CU1 + ":3012"; //port may be changed?
         }
 
         Logger.production("uriMainPart = " + uriMainPart);
