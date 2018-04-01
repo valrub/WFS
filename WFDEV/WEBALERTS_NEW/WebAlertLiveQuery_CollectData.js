@@ -12,64 +12,64 @@ function main(re, ie, oe, executor) {
         Logger.production("crawlerCycleId = " + ie.crawlerCycleId);
         Logger.production("jobId = " + ie.jobId);
 
-        var isIpDefined = executor.getConfigParam("VMF_HOST_IP");
-        var uriMainPart = "";
+        // var isIpDefined = executor.getConfigParam("VMF_HOST_IP");
+        // var uriMainPart = "";
 
-        Logger.production("VMF IP is " + isIpDefined);
-        if (isIpDefined) {
-          isIpDefined = isIpDefined.trim();
-          uriMainPart = "http://" + isIpDefined + ":3012";
-        } else {
-          uriMainPart = "http://" + CU1 + ":3012"; //port may be changed?
-        }
+        // Logger.production("VMF IP is " + isIpDefined);
+        // if (isIpDefined) {
+        //   isIpDefined = isIpDefined.trim();
+        //   uriMainPart = "http://" + isIpDefined + ":3012";
+        // } else {
+        //   uriMainPart = "http://" + CU1 + ":3012"; //port may be changed?
+        // }
 
-        Logger.production("uriMainPart = " + uriMainPart);
+        // Logger.production("uriMainPart = " + uriMainPart);
 
-        var queryListPath = uriMainPart + "/getLiveQueries";
-        var queryDataPath = uriMainPart + "/getLiveQResults";
+        // var queryListPath = uriMainPart + "/getLiveQueries";
+        // var queryDataPath = uriMainPart + "/getLiveQResults";
 
-        var pp = {};
-        pp.QueryName = QueryName;
-        pp.username = ie.username;
-        pp.password = ie.password;
-        pp.crawlerCycleId = ie.crawlerCycleId;
-        pp.sequence = "";
-        var exParams = JSON.stringify(pp);
+        var queryDataPath = re.placeholder12;
 
-        Logger.production("exParams = " + exParams);
+        // var pp = {};
+        // pp.QueryName = QueryName;
+        // pp.username = ie.username;
+        // pp.password = ie.password;
+        // pp.crawlerCycleId = ie.crawlerCycleId;
+        // pp.sequence = "";
+        // var exParams = JSON.stringify(pp);
 
-        callWebAlertAPI(queryListPath, exParams)
-          .then(list => {
-            Logger.production("list of queries: " + list);
+        // Logger.production("exParams = " + exParams);
 
-            return getId(QueryName, list);
-          })
-          .then(q => {
-            Logger.production(
-              "So: ID of: " +
-                QueryName +
-                " = " +
-                q.id +
-                " [" +
-                q.data_count +
-                "] total records"
-            );
+        // callWebAlertAPI(queryListPath, exParams)
+        //   .then(list => {
+        //     Logger.production("list of queries: " + list);
 
-            
+        //     return getId(QueryName, list);
+        //   })
+        //   .then(q => {
+        //     Logger.production(
+        //       "So: ID of: " +
+        //         QueryName +
+        //         " = " +
+        //         q.id +
+        //         " [" +
+        //         q.data_count +
+        //         "] total records"
+        //     );
 
-            var ppd = {};
-            ppd.QueryName = QueryName;
-            ppd.username = ie.username;
-            ppd.password = ie.password;
-            ppd.sequence = "";
-            ppd.searchId = q.id;
-            ppd.crawlerCycleId = ie.crawlerCycleId;
-            var exParamsData = JSON.stringify(ppd);
-            Logger.debug("exParamsData = " + exParamsData);
+        var ppd = {};
+        ppd.QueryName = QueryName;
+        ppd.username = ie.username;
+        ppd.password = ie.password;
+        ppd.sequence = "";
+        ppd.searchId = q.id;
+        ppd.crawlerCycleId = ie.crawlerCycleId;
+        var exParamsData = JSON.stringify(ppd);
+        Logger.debug("exParamsData = " + exParamsData);
 
-            exParamsData = JSON.stringify(ppd);
-            return callWebAlertAPI(queryDataPath, exParamsData);
-          })
+        exParamsData = JSON.stringify(ppd);
+        //return callWebAlertAPI(queryDataPath, exParamsData);
+        callWebAlertAPI(queryDataPath, exParamsData)
           .then(response => {
             return parseData(response);
           })
@@ -113,10 +113,12 @@ function main(re, ie, oe, executor) {
             //READ FROM REPOSITORY
             //IF IT WAS CHANGED - CONTINUE TO COLLECT
             //OTHERWISE - REJECT (No changes in data - still q.data_count records);
-            if (theSameNumberOfRecords){
-              reject("No changes in data - still [" + v_data_count + "] records"); //JUST FOR TEST
+            if (theSameNumberOfRecords) {
+              reject(
+                "No changes in data - still [" + v_data_count + "] records"
+              ); //JUST FOR TEST
             }
-            
+
             Logger.production(
               "Total [" +
                 v_data_count +
@@ -130,15 +132,10 @@ function main(re, ie, oe, executor) {
           }
         }
 
-        
-
         if (!res) {
           Logger.production("100300 - No such query name in the list"); //, "100300");
           reject("100300 - No such query name in the list");
         }
-
-        
-
       });
     }
 
