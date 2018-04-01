@@ -44,14 +44,25 @@ function main(re, ie, oe, executor) {
 
             return getId(QueryName, list);
           })
-          .then(id => {
-            Logger.production("ID of: " + QueryName + " = " + id);
+          .then(q => {
+            Logger.production(
+              "So: ID of: " +
+                QueryName +
+                " = " +
+                q.id +
+                " [" +
+                q.data_count +
+                "] total records"
+            );
+
+            
+
             var ppd = {};
             ppd.QueryName = QueryName;
             ppd.username = ie.username;
             ppd.password = ie.password;
             ppd.sequence = "";
-            ppd.searchId = id;
+            ppd.searchId = q.id;
             ppd.crawlerCycleId = ie.crawlerCycleId;
             var exParamsData = JSON.stringify(ppd);
             Logger.debug("exParamsData = " + exParamsData);
@@ -62,15 +73,18 @@ function main(re, ie, oe, executor) {
           .then(response => {
             return parseData(response);
           })
+          // -- HANDLERS ---------------------------------------------------------------
           .catch(error => {
             Logger.error("Error is :" + error);
 
             if (/Network request failed/.test(error)) {
               Logger.failure("Process failed!" + error, "600404"); //Resource Unavailable
             } else if (/unauthorized/.test(error)) {
-			  Logger.failure("Process failed!" + error, "400020"); //Not valid VA
-			} else if (/No such query name/.test(error)) {
-				Logger.failure("Process failed!" + error, "100300"); //Wrong Query Name
+              Logger.failure("Process failed!" + error, "400020"); //Not valid VA
+            } else if (/No such query name/.test(error)) {
+              Logger.failure("Process failed!" + error, "100300"); //Wrong Query Name
+            } else if (/No changes in data/.test(error)) {
+              Logger.failure("No new data found!" + error, "900200"); //Wrong Query Name
             } else {
               Logger.error("Process failed!" + error);
             }
@@ -87,16 +101,44 @@ function main(re, ie, oe, executor) {
         var coll = JSON.parse(collection);
         for (var i in coll) {
           if (coll[i]["name"] === name) {
-            res = coll[i]["query_id"].toString();
             let v_data_count = coll[i]["data_count"].toString();
-            Logger.production('Total [' + v_data_count + '] records i query <' + name + '> #' + res); //LAST
+            let v_id = coll[i]["query_id"].toString();
+            res = {
+              data_count: v_data_count,
+              id: v_id
+            };
+
+            let theSameNumberOfRecords = true;
+            //Now, check total from the prev execution
+            //READ FROM REPOSITORY
+            //IF IT WAS CHANGED - CONTINUE TO COLLECT
+            //OTHERWISE - REJECT (No changes in data - still q.data_count records);
+            if (theSameNumberOfRecords){
+              reject("No changes in data - still [" + v_data_count + "] records"); //JUST FOR TEST
+            }
+            
+            Logger.production(
+              "Total [" +
+                v_data_count +
+                "] records in the query <" +
+                name +
+                "> id = " +
+                res
+            ); //LAST
+
             resolve(res);
           }
         }
+
+        
+
         if (!res) {
-		  Logger.production("100300 - No such query name in the list"); //, "100300");
-		  reject('100300 - No such query name in the list');
+          Logger.production("100300 - No such query name in the list"); //, "100300");
+          reject("100300 - No such query name in the list");
         }
+
+        
+
       });
     }
 
@@ -116,15 +158,12 @@ function main(re, ie, oe, executor) {
             Logger.debug("xhr.response " + xhr.response);
 
             var o = JSON.parse(xhr.response.toString());
-            // Logger.production(o);
+
             Logger.production(o.error);
-            // Logger.production(o.data);
 
             if (o.error) {
-              Logger.production("WE ARE HERE(1)");
               reject(o.data);
             } else {
-              Logger.production("WE ARE HERE(2)");
               resolve(xhr.response);
             }
           } else {
