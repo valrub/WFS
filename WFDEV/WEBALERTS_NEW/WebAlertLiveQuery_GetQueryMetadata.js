@@ -31,14 +31,19 @@ function main(re, ie, oe, executor) {
 
         Logger.production('VAL - save 12 and 13');
         re.placeholder12 = queryDataPath; //For a future use
-        re.placeholder13 = true;
+        re.placeholder13 = true; // Loop condition
+        re.placeholder16 = 1; // Iterations counter
+        re.placeholder10 = "THE_FIRST_CALL" ; // Sequence number (pointer to the next page)
+        
+
+
 
         var pp = {};
         pp.QueryName = QueryName;
         pp.username = ie.username;
         pp.password = ie.password;
         pp.crawlerCycleId = ie.crawlerCycleId;
-        pp.sequence = "";
+        pp.sequence = "THE_FIRST_CALL";
         var exParams = JSON.stringify(pp);
 
         Logger.production("exParams = " + exParams);

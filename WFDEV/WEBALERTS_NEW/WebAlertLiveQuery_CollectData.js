@@ -4,6 +4,8 @@ function main(re, ie, oe, executor) {
 
     getLiveQueryResults(ie.QueryName, 10, ""); //COMMENT LATER
 
+    Logger.production('Starting iteration #' + re.placeholder16);
+
     //--------------------------------------------------------------------------------------------------------------------
     function getLiveQueryResults(QueryName, chunk, sequence) {
       try {
@@ -12,63 +14,21 @@ function main(re, ie, oe, executor) {
         Logger.production("crawlerCycleId = " + ie.crawlerCycleId);
         Logger.production("jobId = " + ie.jobId);
 
-        // var isIpDefined = executor.getConfigParam("VMF_HOST_IP");
-        // var uriMainPart = "";
-
-        // Logger.production("VMF IP is " + isIpDefined);
-        // if (isIpDefined) {
-        //   isIpDefined = isIpDefined.trim();
-        //   uriMainPart = "http://" + isIpDefined + ":3012";
-        // } else {
-        //   uriMainPart = "http://" + CU1 + ":3012"; //port may be changed?
-        // }
-
-        // Logger.production("uriMainPart = " + uriMainPart);
-
-        // var queryListPath = uriMainPart + "/getLiveQueries";
-        // var queryDataPath = uriMainPart + "/getLiveQResults";
-
         var queryDataPath = re.placeholder12;
-
-        // var pp = {};
-        // pp.QueryName = QueryName;
-        // pp.username = ie.username;
-        // pp.password = ie.password;
-        // pp.crawlerCycleId = ie.crawlerCycleId;
-        // pp.sequence = "";
-        // var exParams = JSON.stringify(pp);
-
-        // Logger.production("exParams = " + exParams);
-
-        // callWebAlertAPI(queryListPath, exParams)
-        //   .then(list => {
-        //     Logger.production("list of queries: " + list);
-
-        //     return getId(QueryName, list);
-        //   })
-        //   .then(q => {
-        //     Logger.production(
-        //       "So: ID of: " +
-        //         QueryName +
-        //         " = " +
-        //         q.id +
-        //         " [" +
-        //         q.data_count +
-        //         "] total records"
-        //     );
 
         var ppd = {};
         ppd.QueryName = QueryName;
         ppd.username = ie.username;
         ppd.password = ie.password;
-        ppd.sequence = "";
-        ppd.searchId = q.id;
+        ppd.sequence = re.placeholder10; 
+        ppd.searchId = re.placeholder14;
         ppd.crawlerCycleId = ie.crawlerCycleId;
+
         var exParamsData = JSON.stringify(ppd);
         Logger.debug("exParamsData = " + exParamsData);
 
         exParamsData = JSON.stringify(ppd);
-        //return callWebAlertAPI(queryDataPath, exParamsData);
+        
         callWebAlertAPI(queryDataPath, exParamsData)
           .then(response => {
             return parseData(response);
@@ -94,50 +54,50 @@ function main(re, ie, oe, executor) {
       }
     }
 
-    //--------------------------------------------------------------------------------------------------------------------
-    function getId(name, collection) {
-      return new Promise((resolve, reject) => {
-        var res = null;
-        var coll = JSON.parse(collection);
-        for (var i in coll) {
-          if (coll[i]["name"] === name) {
-            let v_data_count = coll[i]["data_count"].toString();
-            let v_id = coll[i]["query_id"].toString();
-            res = {
-              data_count: v_data_count,
-              id: v_id
-            };
+    // //--------------------------------------------------------------------------------------------------------------------
+    // function getId(name, collection) {
+    //   return new Promise((resolve, reject) => {
+    //     var res = null;
+    //     var coll = JSON.parse(collection);
+    //     for (var i in coll) {
+    //       if (coll[i]["name"] === name) {
+    //         let v_data_count = coll[i]["data_count"].toString();
+    //         let v_id = coll[i]["query_id"].toString();
+    //         res = {
+    //           data_count: v_data_count,
+    //           id: v_id
+    //         };
 
-            let theSameNumberOfRecords = true;
-            //Now, check total from the prev execution
-            //READ FROM REPOSITORY
-            //IF IT WAS CHANGED - CONTINUE TO COLLECT
-            //OTHERWISE - REJECT (No changes in data - still q.data_count records);
-            if (theSameNumberOfRecords) {
-              reject(
-                "No changes in data - still [" + v_data_count + "] records"
-              ); //JUST FOR TEST
-            }
+    //         let theSameNumberOfRecords = true;
+    //         //Now, check total from the prev execution
+    //         //READ FROM REPOSITORY
+    //         //IF IT WAS CHANGED - CONTINUE TO COLLECT
+    //         //OTHERWISE - REJECT (No changes in data - still q.data_count records);
+    //         if (theSameNumberOfRecords) {
+    //           reject(
+    //             "No changes in data - still [" + v_data_count + "] records"
+    //           ); //JUST FOR TEST
+    //         }
 
-            Logger.production(
-              "Total [" +
-                v_data_count +
-                "] records in the query <" +
-                name +
-                "> id = " +
-                res
-            ); //LAST
+    //         Logger.production(
+    //           "Total [" +
+    //             v_data_count +
+    //             "] records in the query <" +
+    //             name +
+    //             "> id = " +
+    //             res
+    //         ); //LAST
 
-            resolve(res);
-          }
-        }
+    //         resolve(res);
+    //       }
+    //     }
 
-        if (!res) {
-          Logger.production("100300 - No such query name in the list"); //, "100300");
-          reject("100300 - No such query name in the list");
-        }
-      });
-    }
+    //     if (!res) {
+    //       Logger.production("100300 - No such query name in the list"); //, "100300");
+    //       reject("100300 - No such query name in the list");
+    //     }
+    //   });
+    // }
 
     //--------------------------------------------------------------------------------------------------------------------
     function callWebAlertAPI(path, jsonParams) {
@@ -185,8 +145,10 @@ function main(re, ie, oe, executor) {
 
       let responseObj = JSON.parse(response);
       // let leftPosts = responseObj.remainder_posts;
-      re.remainderPosts = responseObj.remainder_posts;
+      re.placeholder11 = responseObj.remainder_posts;
       responseObj = responseObj.data;
+
+      //Logger.production("VAL 7: RESPONSE = " +  JSON.stringify(responseObj));
 
       var ti = new Date();
       Logger.production("Parsing started: " + ti);
@@ -238,9 +200,28 @@ function main(re, ie, oe, executor) {
           post.itemType = "2"; // Post
           addEntity(post);
         }
-        re.sequence = responseObj[i].interaction.sequence;
+        
+        //re.sequence = responseObj[i].interaction.sequence;
+        //Logger.production("VAL 33 " + responseObj[i].interaction.sequence);
+        
       }
+
       //DO NOT FOPRGET TO PERSIST THE LAST EXTRACTED POSTID
+      re.placeholder10 = responseObj[i-1].interaction.sequence;
+      Logger.production("THE LAST Sequence is" + re.placeholder10);
+      Logger.production("Total remaining Posts are" + re.placeholder11);
+      
+      if (re.placeholder11 > 0)
+      {
+        re.placeholder13 = true;
+        re.placeholder16 = parseInt(re.placeholder16) + 1; //Next iteration counter
+        Logger.production('Going to the next iteration #' + re.placeholder16);
+      }
+      else{
+        re.placeholder13 = false;
+        Logger.production('Finita la comedia ...');
+      }
+
 
       var te = new Date();
       Logger.production("Second CA and parsing ended: " + te);
