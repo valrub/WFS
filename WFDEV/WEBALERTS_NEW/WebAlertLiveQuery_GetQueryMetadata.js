@@ -28,8 +28,6 @@ function main(re, ie, oe, executor) {
         var queryListPath = uriMainPart + "/getLiveQueries";
         var queryDataPath = uriMainPart + "/getLiveQResults";
 
-
-        Logger.production('VAL - save 12 and 13');
         re.placeholder12 = queryDataPath; //For a future use
         re.placeholder13 = true; // Loop condition
         re.placeholder16 = 1; // Iterations counter
@@ -69,21 +67,7 @@ function main(re, ie, oe, executor) {
             re.placeholder15 = q.data_count; //For a future use
 
             executor.ready();
-          //   var ppd = {};
-          //   ppd.QueryName = QueryName;
-          //   ppd.username = ie.username;
-          //   ppd.password = ie.password;
-          //   ppd.sequence = "";
-          //   ppd.searchId = q.id;
-          //   ppd.crawlerCycleId = ie.crawlerCycleId;
-          //   var exParamsData = JSON.stringify(ppd);
-          //   Logger.debug("exParamsData = " + exParamsData);
 
-          //   exParamsData = JSON.stringify(ppd);
-          //   return callWebAlertAPI(queryDataPath, exParamsData);
-          // })
-          // .then(response => {
-          //   return parseData(response);
           })
           // -- HANDLERS ---------------------------------------------------------------
           .catch(error => {
@@ -140,8 +124,6 @@ function main(re, ie, oe, executor) {
                 JSON.stringify(res)
             ); //LAST
 
-
-            Logger.production('VAL-1');
             resolve(res);
           }
         }
@@ -194,75 +176,8 @@ function main(re, ie, oe, executor) {
         xhr.send(jsonParams);
       });
     }
-
     //--------------------------------------------------------------------------------------------------------------------
-    // function parseData(response) {
-    //   let collectedAccounts = [];
 
-    //   let responseObj = JSON.parse(response);
-    //   // let leftPosts = responseObj.remainder_posts;
-    //   re.remainderPosts = responseObj.remainder_posts;
-    //   responseObj = responseObj.data;
-
-    //   var ti = new Date();
-    //   Logger.production("Parsing started: " + ti);
-
-    //   for (var i = 0; i < responseObj.length; i++) {
-    //     //DO NOT FOPRGET TO CHECK THE LAST EXTRACTED POSTID AND DO NOT CONTINUE IN CASE ..
-    //     let author = {};
-    //     author.externalId = responseObj[i].author.author_service_id;
-    //     author.itemType = "4"; // Web Entity
-    //     author.type = "1"; // Person
-    //     author.activityType = "1"; // Social Network
-    //     author.url = responseObj[i].author.link;
-    //     author.title = responseObj[i].author.name;
-    //     author.imageUrl = responseObj[i].author.avatar;
-    //     collectedAccounts.push(author);
-
-    //     if (!("" + author.externalId in collectedAccounts)) {
-    //       collectedAccounts[" " + author.externalId] = true;
-    //       //if (ie.downloadImages == 'true') {
-    //       addImage(author);
-    //       //} else {
-    //       //    addEntity(author);
-    //       //}
-    //     } else {
-    //       Logger.debug(
-    //         "The account (" + author.title + ") is already collected."
-    //       );
-    //     }
-
-    //     let post = {};
-    //     post.externalId = responseObj[i].interaction.internal_id;
-    //     post.itemType = "2"; // Topic
-    //     post.parent_externalId = author.externalId;
-    //     post.parentObjectType = "4"; // Web Entity
-    //     post.activityType = "1"; // Social Network
-    //     post.url = responseObj[i].interaction.link;
-    //     post.body = responseObj[i].interaction.content;
-    //     post.writeDate = responseObj[i].interaction.created_original_date;
-    //     post.writer_externalId = author.externalId;
-    //     post.imageUrl = responseObj[i].interaction.media;
-
-    //     if (
-    //       responseObj[i].interaction.sub_type === "image" &&
-    //       ie.downloadImages == "true"
-    //     ) {
-    //       post.itemType = "5"; // Image
-    //       addImage(post);
-    //     } else {
-    //       post.itemType = "2"; // Post
-    //       addEntity(post);
-    //     }
-    //     re.sequence = responseObj[i].interaction.sequence;
-    //   }
-    //   //DO NOT FOPRGET TO PERSIST THE LAST EXTRACTED POSTID
-
-    //   var te = new Date();
-    //   Logger.production("Second CA and parsing ended: " + te);
-
-    //   finalize();
-    // }
   } catch (e) {
     Logger.failure(e);
   }
