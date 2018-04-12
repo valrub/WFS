@@ -2,12 +2,14 @@ function main(re, ie, oe, executor) {
   try {
     setGlobalLogger(re, ie, oe, executor);
 
-    getLiveQueryResults(ie.QueryName, 10, ""); //COMMENT LATER
-
     Logger.production('Starting iteration #' + re.placeholder16);
 
+    getLiveQueryResults(ie.QueryName,  ""); //COMMENT LATER
+
+    
+
     //--------------------------------------------------------------------------------------------------------------------
-    function getLiveQueryResults(QueryName, chunk, sequence) {
+    function getLiveQueryResults(QueryName,  sequence) {
       try {
         Logger.production("ie = " + JSON.stringify(ie));
         Logger.production("restApiUrl = " + ie.restApiUrl);
@@ -53,51 +55,6 @@ function main(re, ie, oe, executor) {
         Logger.failure("Error message: " + e);
       }
     }
-
-    // //--------------------------------------------------------------------------------------------------------------------
-    // function getId(name, collection) {
-    //   return new Promise((resolve, reject) => {
-    //     var res = null;
-    //     var coll = JSON.parse(collection);
-    //     for (var i in coll) {
-    //       if (coll[i]["name"] === name) {
-    //         let v_data_count = coll[i]["data_count"].toString();
-    //         let v_id = coll[i]["query_id"].toString();
-    //         res = {
-    //           data_count: v_data_count,
-    //           id: v_id
-    //         };
-
-    //         let theSameNumberOfRecords = true;
-    //         //Now, check total from the prev execution
-    //         //READ FROM REPOSITORY
-    //         //IF IT WAS CHANGED - CONTINUE TO COLLECT
-    //         //OTHERWISE - REJECT (No changes in data - still q.data_count records);
-    //         if (theSameNumberOfRecords) {
-    //           reject(
-    //             "No changes in data - still [" + v_data_count + "] records"
-    //           ); //JUST FOR TEST
-    //         }
-
-    //         Logger.production(
-    //           "Total [" +
-    //             v_data_count +
-    //             "] records in the query <" +
-    //             name +
-    //             "> id = " +
-    //             res
-    //         ); //LAST
-
-    //         resolve(res);
-    //       }
-    //     }
-
-    //     if (!res) {
-    //       Logger.production("100300 - No such query name in the list"); //, "100300");
-    //       reject("100300 - No such query name in the list");
-    //     }
-    //   });
-    // }
 
     //--------------------------------------------------------------------------------------------------------------------
     function callWebAlertAPI(path, jsonParams) {
@@ -190,9 +147,14 @@ function main(re, ie, oe, executor) {
         post.writer_externalId = author.externalId;
         post.imageUrl = responseObj[i].interaction.media;
 
+
+
+        Logger.production('responseObj[i].interaction.sub_type = ' + responseObj[i].interaction.sub_type);
         if (
-          responseObj[i].interaction.sub_type === "image" &&
-          ie.downloadImages == "true"
+          responseObj[i].interaction.sub_type === "image" 
+
+          
+          //&& ie.downloadImages == "true"
         ) {
           post.itemType = "5"; // Image
           addImage(post);
