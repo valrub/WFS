@@ -496,7 +496,7 @@ function likedVideosResponseHandler(response) {
 function searchVideos(keyword) {
     try {
         //var ajaxUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&publishedAfter=" + ie.sinceDate + "&order=date&fields=nextPageToken,items/id/videoId&q=" + keyword + "&key=" + apiKey;
-        var ajaxUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&publishedAfter=" + sinceDate + "&order=date&fields=nextPageToken,items/id/videoId&q=" + keyword + "&key=" + apiKey;
+          var ajaxUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&publishedAfter=" + sinceDate + "&order=date&fields=nextPageToken,items/id/videoId&q=" + keyword + "&key=" + apiKey;
         executor.reportError("500", "ERROR", "1-publishedAfterURL = " + ajaxUrl, false);
         youtubeApi(ajaxUrl, searchVideosResponseHandler);
     } catch (e) {
