@@ -759,7 +759,7 @@ function main(re, ie, oe, executor) {
 				img.activityType = "1";
 				addImage(img);
 
-				curr = iterator.iterateNext();
+				curr = `iterator`.iterateNext();
 
 			}
 			removeFromQueue("collectImage");
