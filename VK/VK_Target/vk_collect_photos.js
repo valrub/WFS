@@ -110,6 +110,10 @@ function main(re, ie, oe, executor) {
 					thisNode = iterator.iterateNext();
 					cntItems++;
 					addImage(img);
+
+
+
+					//HERE - ADD LOCATION
 				}
 				_res.totalCollected = cntItems;
 				_res.returnCode = "200";

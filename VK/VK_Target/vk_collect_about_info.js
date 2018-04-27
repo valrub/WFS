@@ -135,15 +135,7 @@ function main(re, ie, oe, executor) {
 					attributeName: "href",
 					mandatory: "0"
 				},
-				pMarker + "-0"
-			);
-
-			var aPhotosPageUrl = _extract.GetAttribute({
-					xpathName: "aPhotosPageUrl",
-					attributeName: "href",
-					mandatory: "0"
-				},
-				pMarker + "-01"
+				pMarker + "-4"
 			);
 
 			if (aFriendsPageUrl.returnCode === "200") {
@@ -154,13 +146,26 @@ function main(re, ie, oe, executor) {
 				Logger.production("The target profile has no friends list. " + aFriendsPageUrl.returnCode);
 			}
 
+			
+			
+			var aPhotosPageUrl = _extract.GetAttribute({
+					xpathName: "aPhotosPageUrl",
+					attributeName: "href",
+					mandatory: "0"
+				},
+				pMarker + "-05"
+			);
+
 			if (aPhotosPageUrl.returnCode === "200") {
-				re.placeholder2 = aPhotosPageUrl.Value; // used to load the photos page
+				re.placeholder2 = aPhotosPageUrl.Value; // used to load the friends page
 				Logger.production("The target profile has a friends list: " + re.placeholder2);
 			} else {
-				Logger.production("The target profile has no photos. " + aPhotosPageUrl.returnCode);
+				re.placeholder1 = false;
+				Logger.production("The target profile has no friends list. " + aPhotosPageUrl.returnCode);
 			}
+			
 
+			
 			// Save target entity -------------------------------------------
 
             //Logger.production('VAL-1');
@@ -184,43 +189,43 @@ function main(re, ie, oe, executor) {
 			}
 
 
-            // //Logger.production('VAL-2');
-            // var preID = window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1];
+            //Logger.production('VAL-2');
+            var preID = window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1];
 			
             
 
 
-            // Logger.production('VAL777-1: Try to login. preID = ' + preID)
+            Logger.production('VAL777-1: Try to login. preID = ' + preID)
             
 
-			// var rightID; 
+			var rightID; 
 
-			// try //Id could be in format id123456 
-			// 	//tHEN - let's clean out "id" in case it exists because in other places it will appear without it (only digits)
-			// {
-			// 	rightID = preID.match(/id(.+)/)[1];
-			// 	Logger.production('Account ID is id12345 style = ' + rightID);
+			try //Id could be in format id123456 
+				//tHEN - let's clean out "id" in case it exists because in other places it will appear without it (only digits)
+			{
+				rightID = preID.match(/id(.+)/)[1];
+				Logger.production('Account ID is id12345 style = ' + rightID);
 
-			// } //or it could be just a name like mike.smith or zubbrr123
-			// catch(e)
-			// {
-			// 	var isNotGroup = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue;
-			// 	if(!isNotGroup)
-			// 		{
-			// 			Logger.failure('VK Group - not supported.');
-			// 		}
-			// 		else
-			// 		{
-			// 			rightID = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue.getAttribute("href").match(/(\/friends\?id=)(\d+)(&section=all)/)[2];
-			// 			Logger.production('Account ID is NOT id12345 style = ' + preID + " so ID was fpound -->" + rightID);
-			// 		}
+			} //or it could be just a name like mike.smith or zubbrr123
+			catch(e)
+			{
+				var isNotGroup = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue;
+				//Change this logic! Doesn't work when there are no friends
+				if(!isNotGroup)
+					{
+						Logger.failure('VK Group - not supported.');
+					}
+					else
+					{
+						rightID = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue.getAttribute("href").match(/(\/friends\?id=)(\d+)(&section=all)/)[2];
+						Logger.production('Account ID is NOT id12345 style = ' + preID + " so ID was found -->" + rightID);
+					}
 
 
 				
-			// }
+			}
 
-
-            //Logger.production('VAL-3');
+            Logger.production('VAL-3');
 
 
 
