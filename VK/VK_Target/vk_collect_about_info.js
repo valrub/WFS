@@ -174,41 +174,50 @@ function main(re, ie, oe, executor) {
 			target.imageUrl = vImageURL;
             target.url = window.location.href; //Current page
             
-            
-            //Logger.production('VAL-2');
-            var preID = window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1];
 			
-            var rightID; 
+			
+			if(document.evaluate(".//div[@class = 'counts_module']", document, null, 9, null).singleNodeValue)
+			{
+				Logger.production('It is personal VK account: ' + window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1]);
+			}else{
+				Logger.failure('Not VK person - not supported.');
+			}
 
 
-            Logger.production('VAL777-1: Try to login. rightID = ' + rightID)
+            // //Logger.production('VAL-2');
+            // var preID = window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1];
+			
             
 
 
+            // Logger.production('VAL777-1: Try to login. preID = ' + preID)
+            
 
-			try //Id could be in format id123456 
-				//tHEN - let's clean out "id" in case it exists because in other places it will appear without it (only digits)
-			{
-				rightID = preID.match(/id(.+)/)[1];
-				Logger.production('Account ID is id12345 style = ' + rightID);
+			// var rightID; 
 
-			} //or it could be just a name like mike.smith or zubbrr123
-			catch(e)
-			{
-				var isNotGroup = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue;
-				if(!isNotGroup)
-					{
-						Logger.failure('VK Group - not supported.');
-					}
-					else
-					{
-						rightID = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue.getAttribute("href").match(/(\/friends\?id=)(\d+)(&section=all)/)[2];
-						Logger.production('Account ID is NOT id12345 style = ' + preID + " so ID was fpound -->" + rightID);
-					}
+			// try //Id could be in format id123456 
+			// 	//tHEN - let's clean out "id" in case it exists because in other places it will appear without it (only digits)
+			// {
+			// 	rightID = preID.match(/id(.+)/)[1];
+			// 	Logger.production('Account ID is id12345 style = ' + rightID);
+
+			// } //or it could be just a name like mike.smith or zubbrr123
+			// catch(e)
+			// {
+			// 	var isNotGroup = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue;
+			// 	if(!isNotGroup)
+			// 		{
+			// 			Logger.failure('VK Group - not supported.');
+			// 		}
+			// 		else
+			// 		{
+			// 			rightID = document.evaluate(".//div[@class='counts_module']/a[contains(@href, '/friends?id=')]", document, null, 9, null).singleNodeValue.getAttribute("href").match(/(\/friends\?id=)(\d+)(&section=all)/)[2];
+			// 			Logger.production('Account ID is NOT id12345 style = ' + preID + " so ID was fpound -->" + rightID);
+			// 		}
 
 
 				
-			}
+			// }
 
 
             //Logger.production('VAL-3');
