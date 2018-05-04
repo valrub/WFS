@@ -3,12 +3,12 @@ function main(re, ie, oe, executor) {
     //Initialize Global Settings
     setGlobalLogger(re, ie, oe, executor);
 
-
+``
 
 
 	executionContext = {
 		globalLogExtracted: false, //change to false before release;
-		globalWPXP: xpaths.VK_Target
+		globalWPXP: xpaths.VK_Target``
 	};
 
 	var _extract = new Extract(executionContext);

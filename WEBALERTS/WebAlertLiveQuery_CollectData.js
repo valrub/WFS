@@ -242,6 +242,7 @@ function main(re, ie, oe, executor) {
         re.placeholder13 = false;
         Logger.production('Finita la comedia ... It was running ' + (Math.round(totalExTime * 100) / 100) + ' minutes');
 
+        executor.ready();
 
         
 
