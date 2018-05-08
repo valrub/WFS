@@ -170,6 +170,8 @@ function main(re, ie, oe, executor) {
 				mandatory: "0"
 			}, "aPostImg");
 
+			Logger.production('VAL_COLL = ' + aPostImg); 
+
 			var aPostVideo = _extract.GetCollection({
 				context: thisNode,
 				xpathName: "aPostVideo",
