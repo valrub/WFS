@@ -1,17 +1,17 @@
 
   function main(re, ie, oe, executor) {
     var pages = 1;
-    var maxPages = 10;
+    var maxPages = 50;
     var daysBack = 0;
     //Days back default
-    var daysBackDefault = 90;
+    var daysBackDefault = 1000;
   
     var collectedPages = [];
     var collectedWriters = [];
     
-    setGlobalLogger(re, ie, oe, executor);
+    setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
   
-    Logger.production('VAL-1');
+
     
 
     if ((ie.Pages !== "1") && (ie.Pages != "")) {
@@ -28,7 +28,7 @@
     }
     //Days Back 
     
-    Logger.production('VAL-2');
+
 
       if ((!ie.DaysBack) || (ie.DaysBack == "")) {
         daysBack = daysBackDefault;
@@ -37,7 +37,7 @@
         daysBackDate = daysBackDate.getTime();
       } else {
   
-        Logger.production('VAL-3');
+
 
           if (/^\d+$/.test(ie.DaysBack)) { //implementation for 6
               daysBack = parseInt(ie.DaysBack);
@@ -50,7 +50,7 @@
                   executor.reportError("200", "INFO", "356 days back will be collected (maximum)", false);
               }
               
-              Logger.production('VAL-4');
+
 
               daysBackDate = new Date();
               daysBackDate.setDate(daysBackDate.getDate() - daysBack);
@@ -67,13 +67,21 @@
           }
       } 
     
-      Logger.production('VAL-5');
 
-    var token = "FElqPq4ZUYgPITTtFP4QciFGYwK3Bhhsw1N19Obk";
-    var url = "https://portal.cybersixgill.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialContent=false&sort=date&orderType=desc&size=100";
+
+    //var token = "FElqPq4ZUYgPITTtFP4QciFGYwK3Bhhsw1N19Obk";
+    //var url = "https://portal.cybersixgill.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialContent=false&sort=date&orderType=desc&size=100";
     
-    Logger.production('VAL-6');
-  
+    var token = "i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz";
+    var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
+    Logger.production("_url = " + _url);
+    var url = encodeURIComponent(_url);
+    Logger.production("url = " + url);
+    //https://darkalert.verint.com/api/search?q=weed&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true
+
+
+    var topic = {};
+
     for (var i = 0; i < pages; i++) {
       if (i == 0) {
         var from = "&from=0";
@@ -122,7 +130,7 @@
           var timestamp = new Date(currentNode.date);
           timestamp = timestamp.getTime();
           if (timestamp > daysBackDate) {
-              var topic = {
+               topic = {
                 activityType: "1",
                 itemType: "2",
                 
@@ -138,7 +146,7 @@
               }
           } else {
               executor.reportError("200", "INFO", "We stop collecting because of days back", false);
-              executor.ready();
+              //executor.ready();
           }
           
           
