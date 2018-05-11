@@ -1,12 +1,12 @@
 function main(re, ie, oe, executor) {
     //=====================================================================
     if (re.executionContext.indexOf("wall") === -1) {
-    	executor.ready();
+        executor.ready();
 	}
 	persistDataSettings.flushAt = 20;
 	persistDataSettings.useSaveBinaryForVideos = true;
 	//Initialize Global Settings
-	setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
+	setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
 	executionContext = {
 		globalLogExtracted: false, //change to false before release;
@@ -170,7 +170,9 @@ function main(re, ie, oe, executor) {
 				mandatory: "0"
 			}, "aPostImg");
 
-			Logger.production('VAL_COLL = ' + aPostImg); 
+			//Logger.production('VAL_COLL SNAPSHOT = ' + aPostImg.SnapshotValue.snapshotLength); 
+			//Logger.production(aPostImg.SnapshotValue);
+			
 
 			var aPostVideo = _extract.GetCollection({
 				context: thisNode,
@@ -526,13 +528,60 @@ function main(re, ie, oe, executor) {
 
 
 	function collectImage(parent, currImgNode) {
+
+		Logger.production("VAL_NODE Length = " + currImgNode.SnapshotValue.snapshotLength);
 		addToQueue("collectImage");
+
 		try {
 			Logger.production(" In collectImage ");
+			//Logger.production("VAL_NODE-1:  currImgNode " + currImgNode);
+			
+
 			var iterator = currImgNode.Value;
 			var curr = iterator.iterateNext();
 
+
+			
+
 			while (curr) {
+				//----------------------->
+				var url = document.evaluate(".//a[contains(@class, 'image_cover')]", curr, null, 9, null);
+				var loc = document.evaluate(".//a[contains(@class, 'media_place')]", curr, null, 9, null); 
+
+				if(url.singleNodeValue)
+					var theUrl = url.singleNodeValue.getAttribute('style').match(/http(.+\b)/g)[0];
+				else
+					var theUrl = 'No URL';
+				
+				if(loc.singleNodeValue)
+				{
+					var theLoc = loc.singleNodeValue.textContent.trim();
+
+					let adrs = {};
+
+					adrs.itemType = 15; // address
+					adrs.type = 3; //location
+					adrs.parent_externalId = parent.externalId;
+					adrs.parentObjectType = parent.itemType;
+					// adrs.description = responseObj[i].interaction.city;
+					// adrs.title = responseObj[i].interaction.state_code;
+					adrs.body = theLoc;
+					adrs.title = theLoc;
+					adrs.description = theLoc;
+					adrs.url = theLoc;
+					adrs.writer_externalId = parent.writer_externalId;
+					// adrs.imageUrl = responseObj[i].interaction.postal_code;
+					// adrs.coordinateX = responseObj[i].interaction.geo_long;
+					// adrs.coordinateY = responseObj[i].interaction.geo_lat;
+
+					addEntity(adrs);
+				}else
+					var theLoc = 'NO LOCATION';
+				
+				Logger.production('ИТАК: ' + theLoc + '  -  ' + theUrl);
+				//----------------------->
+
+
 				var img = {};
 				img.parent_externalId = parent.externalId;
 				img.parentObjectType = parent.itemType;
@@ -540,8 +589,9 @@ function main(re, ie, oe, executor) {
 				img.writeDate = parent.writeDate;
 				img.itemType = "5";
 
-				Logger.production('VAL-IMAGE-NOEDE = ' + curr);
-				img.imageUrl = curr.getAttribute("style").match(/http(.+\b)/g)[0];
+				
+				img.imageUrl = theUrl; //linkToImg.match(/http(.+\b)/g)[0]; //curr.getAttribute("style").match(/http(.+\b)/g)[0];
+				//Logger.production("VAL_NODE-4 :" + img.imageUr);
 				img.url = parent.url;
 				img.externalId = "img_id_" + hashCode(img.imageUrl);
 				img.activityType = "1";

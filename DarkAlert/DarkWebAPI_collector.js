@@ -32,7 +32,7 @@
 
       if ((!ie.DaysBack) || (ie.DaysBack == "")) {
         daysBack = daysBackDefault;
-        var daysBackDate = new Date();
+        daysBackDate = new Date();
         daysBackDate.setDate(daysBackDate.getDate() - daysBack);
         daysBackDate = daysBackDate.getTime();
       } else {
@@ -75,21 +75,22 @@
     var token = "i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz";
     var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
     Logger.production("_url = " + _url);
-    var url = encodeURIComponent(_url);
+    var url = _url; //encodeURIComponent(_url);
     Logger.production("url = " + url);
     //https://darkalert.verint.com/api/search?q=weed&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true
 
 
     var topic = {};
+    var from;
+    var finalUrl;
 
     for (var i = 0; i < pages; i++) {
       if (i == 0) {
-        var from = "&from=0";
-        var finalUrl = url + from;
+        from = "&from=0";
+        finalUrl = url + from;
       } else {
           from = "&from=" + (i * 100);
           finalUrl = url + from;
-  
       }
       var xhr = new XMLHttpRequest();
       xhr.open("GET", finalUrl, false)
@@ -115,7 +116,7 @@
             
           }
           
-          Logger.production('VAL-8');
+          
 
           var writer = {
             activityType: "1",
@@ -145,12 +146,12 @@
       
               }
           } else {
-              executor.reportError("200", "INFO", "We stop collecting because of days back", false);
+              Logger.debug('Exceeding days-back criteria');
               //executor.ready();
           }
           
           
-          Logger.production('VAL-9');
+          
 
           if (currentNode.post_id) {
             topic.externalId = currentNode.post_id;
