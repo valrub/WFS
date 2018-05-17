@@ -1,34 +1,32 @@
 
   function main(re, ie, oe, executor) {
     var pages = 1;
-    var maxPages = 50;
+    var maxPages = 2000;
     var daysBack = 0;
     //Days back default
-    var daysBackDefault = 1000;
+    var daysBackDefault = 3700;
   
     var collectedPages = [];
     var collectedWriters = [];
     
-    setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
-  
+    var totalCollected = 0;
+    var totalNotCollectedDueToDate = 0;
 
-    
+    setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
     if ((ie.Pages !== "1") && (ie.Pages != "")) {
       pages = parseInt(ie.Pages);
       if (isNaN(pages)) { pages = 1;}
       else if ( pages < 1) {
           pages = 1;
-          executor.reportError("200", "INFO", "1 page will be collected (minimum)", false);
+          Logger.warning('1 page will be collected (minimum)', '100320');
       }
       else if(pages > maxPages) {
           pages = maxPages;
-          executor.reportError("200", "INFO", "20 pages will be collected (maximum)", false);
+          Logger.warning(maxPages + ' pages will be collected (input parameter is out of permited range)', '100310');
       }
     }
     //Days Back 
-    
-
 
       if ((!ie.DaysBack) || (ie.DaysBack == "")) {
         daysBack = daysBackDefault;
@@ -36,22 +34,17 @@
         daysBackDate.setDate(daysBackDate.getDate() - daysBack);
         daysBackDate = daysBackDate.getTime();
       } else {
-  
-
-
           if (/^\d+$/.test(ie.DaysBack)) { //implementation for 6
               daysBack = parseInt(ie.DaysBack);
               if (isNaN(daysBack) || daysBack < 1) {
                   daysBack = daysBackDefault;
-                  executor.reportError("200", "INFO", "90 days back will be collected (default)", false);
+                  Logger.warning(daysBackDefault + ' days back will be collected (input parameter is missing)', '100320');
               }
-              else if (daysBack > 356) {
-                  daysBack = 356;
-                  executor.reportError("200", "INFO", "356 days back will be collected (maximum)", false);
+              else if (daysBack > daysBackDefault) {
+                  daysBack = 365;
+                  Logger.warning(daysBackDefault + ' days back will be collected (input parameter is out of permited range)', '100310');
               }
-              
-
-
+        
               daysBackDate = new Date();
               daysBackDate.setDate(daysBackDate.getDate() - daysBack);
               daysBackDate = daysBackDate.getTime();
@@ -67,23 +60,24 @@
           }
       } 
     
-
-
-    //var token = "FElqPq4ZUYgPITTtFP4QciFGYwK3Bhhsw1N19Obk";
-    //var url = "https://portal.cybersixgill.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialContent=false&sort=date&orderType=desc&size=100";
     
+    Logger.production("Will be executed for " + pages * 100 + " posts collected during last " + daysBack + " days", "500500"); 
+
     var token = "i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz";
-    var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
-    Logger.production("_url = " + _url);
-    var url = _url; //encodeURIComponent(_url);
-    Logger.production("url = " + url);
     //https://darkalert.verint.com/api/search?q=weed&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true
 
+    var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
+    
+    
+    var url = _url; //encodeURIComponent(_url);
+    Logger.production("url = " + url);    
 
     var topic = {};
     var from;
     var finalUrl;
+    
 
+       
     for (var i = 0; i < pages; i++) {
       if (i == 0) {
         from = "&from=0";
@@ -96,11 +90,13 @@
       xhr.open("GET", finalUrl, false)
       xhr.send();
       
-      Logger.production('VAL-7 ' + finalUrl);
-      
       if (xhr.status == "200") {
-  
-        var response = JSON.parse(xhr.responseText)
+        
+        var response = JSON.parse(xhr.responseText);
+
+        //Logger.warning(response.results.length + ' results returned in that call[' + i + "]", '500500');
+        
+
         for (var j = 0; j < response.results.length; j++) {
           var currentNode = response.results[j];
           
@@ -111,10 +107,8 @@
             url: "http://" + currentNode.site + ".onion",
             title: currentNode.site,
             body: currentNode.site,
-            externalId: currentNode.site
-            
-            
-          }
+            externalId: currentNode.site      
+          };
           
           
 
@@ -126,7 +120,7 @@
             title: currentNode.creator,
             body: currentNode.creator,
             externalId: currentNode.creator
-          }
+          };
           
           var timestamp = new Date(currentNode.date);
           timestamp = timestamp.getTime();
@@ -142,41 +136,51 @@
                 
                 body: currentNode.content,
                 title: currentNode.title,
+                description: currentNode.category, //Val
                 writeDate: currentNode.date
       
+              };
+
+              if (currentNode.post_id) {
+                topic.externalId = currentNode.post_id;
+              } else {
+                topic.externalId = currentNode.id;
               }
+      
+              if (!collectedWriters[writer.externalId]) {
+                executor.addEntity(writer);
+                collectedWriters[writer.externalId] = true;
+              }
+              if (!collectedPages[page.externalId]) {
+                executor.addEntity(page);
+                collectedPages[page.externalId] = true;
+              }
+    
+              executor.addEntity(topic);
+              
+              totalCollected+=1;
+              
           } else {
-              Logger.debug('Exceeding days-back criteria');
-              //executor.ready();
+              Logger.debug(timestamp + ' Exceeding days-back criteria', '900300');
+              totalNotCollectedDueToDate+=1;
           }
-          
-          
           
 
-          if (currentNode.post_id) {
-            topic.externalId = currentNode.post_id;
-          } else {
-            topic.externalId = currentNode.id
-          }
-  
-          if (!collectedWriters[writer.externalId]) {
-            executor.addEntity(writer);
-            collectedWriters[writer.externalId] = true;
-          }
-          if (!collectedPages[page.externalId]) {
-            executor.addEntity(page);
-            collectedPages[page.externalId] = true;
-          }
-          executor.addEntity(topic)
-          
           
           }
       } else {
-          executor.reportError("200", "INFO", "we dont have response", false);
+          Logger.warning('we dont have response', '500504');
       }
+      
+      executor.flushEntities();
+      Logger.debug("URL[" + i + "] = " + finalUrl, '500100');
+
+    } //EO FOR (i)
   
-    }
-  
-  
+    Logger.warning("DONE:" + totalCollected + ' Total results were collected', '500102');    
+    Logger.warning("DONE:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+
     executor.ready();
   }
+
+
