@@ -3,6 +3,7 @@
     var pages = 1;
     var maxPages = 2000;
     var daysBack = 0;
+    var pageSize = 100;
     //Days back default
     var daysBackDefault = 3700;
   
@@ -61,13 +62,16 @@
       } 
     
     
-    Logger.production("Will be executed for " + pages * 100 + " posts collected during last " + daysBack + " days", "500500"); 
+    Logger.production("Will be executed for " + pages * pageSize + " posts collected during last " + daysBack + " days", "500500"); 
 
     var token = "i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz";
     //https://darkalert.verint.com/api/search?q=weed&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true
 
-    var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
+    //          https://darkalert.verint.com/api/search?q=viagra&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true&size=2&sort=date&orderType=desc&from=31
+
+    //var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
     
+    var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true&size=" + pageSize + "&sort=date&orderType=desc";
     
     var url = _url; //encodeURIComponent(_url);
     Logger.production("url = " + url);    
@@ -76,18 +80,18 @@
     var from;
     var finalUrl;
     
-
+    
        
     for (var i = 0; i < pages; i++) {
       if (i == 0) {
         from = "&from=0";
         finalUrl = url + from;
       } else {
-          from = "&from=" + (i * 100);
+          from = "&from=" + (i * pageSize);
           finalUrl = url + from;
       }
       var xhr = new XMLHttpRequest();
-      xhr.open("GET", finalUrl, false)
+      xhr.open("GET", finalUrl, false);
       xhr.send();
       
       if (xhr.status == "200") {
