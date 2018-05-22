@@ -714,15 +714,15 @@ function main(re, ie, oe, executor) {
 
 			var postInterval = setInterval(function() {
 
-				Logger.production("1");
+				Logger.debug("1");
 				if (checkAllCollected(collectedResults)) {
 
 					var result = results.snapshotItem(cntItems);
-					Logger.production("2");
+					Logger.debug("2");
 
 					if (!isCollectionLimitReached() && result) {
 
-						Logger.production("3");
+						Logger.debug("3");
 
 						if (debug) Logger.production('Collect post #' + cntItems);
 						getPost(result, theTargetID);
