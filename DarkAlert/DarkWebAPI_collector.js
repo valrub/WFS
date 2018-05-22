@@ -44,10 +44,10 @@
                     daysBack = daysBackDefault;
                     Logger.warning(daysBackDefault + ' days back will be collected (input parameter is missing)', '100320');
                 }
-                else if (daysBack > daysBackDefault) {
-                    daysBack = 365;
-                    Logger.warning(daysBackDefault + ' days back will be collected (input parameter is out of permited range)', '100310');
-                }
+                // else if (daysBack > daysBackDefault) {
+                //     daysBack = 365;
+                //     Logger.warning(daysBackDefault + ' days back will be collected (input parameter is out of permited range)', '100310');
+                // }
           
                 daysBackDate = new Date();
                 daysBackDate.setDate(daysBackDate.getDate() - daysBack);
