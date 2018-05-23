@@ -11,25 +11,22 @@
       var collectedPages = [];
       var collectedWriters = [];
       
-      var totalCollected = 0;
-      var totalNotCollectedDueToDate = 0;
+      
 
       var colComments = ['comment', 'feedback', 'reply'];
 
-      setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
-      // if ((ie.Pages !== "1") && (ie.Pages != "")) {
-      //   pages = parseInt(ie.Pages);
-      //   if (isNaN(pages)) { pages = 1;}
-      //   else if ( pages < 1) {
-      //       pages = 1;
-      //       Logger.warning('1 page will be collected (minimum)', '100320');
-      //   }
-      //   else if(pages > maxPages) {
-            pages = maxPages;
-            //Logger.warning(maxPages + ' pages will be collected (input parameter is out of permited range)', '100310');
-      //   }
-      // }
+      var totalCollected = 0;
+      var totalNotCollectedDueToDate = 0;
+      var cntAuthor = 0;
+      var cntTopic = 0;
+      var cntComment = 0;
+
+
+      setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
+
+      pages = maxPages;
+
       //Days Back 
 
         if ((!ie.DaysBack) || (ie.DaysBack == "")) {
@@ -68,11 +65,6 @@
       Logger.production("Will be executed for " + pages * pageSize + " posts collected during last " + daysBack + " days", "500500"); 
 
       var token = "i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz";
-      //https://darkalert.verint.com/api/search?q=weed&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true
-
-      //          https://darkalert.verint.com/api/search?q=viagra&token=i38XoM9bODROTV6yc9lkk3YC0Wf0guw7x4AnxDiz&partialcontent=true&size=2&sort=date&orderType=desc&from=31
-
-      //var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true";
       
       var _url = "https://darkalert.verint.com/api/search?q=" + ie.keywords + "&token=" + token + "&partialcontent=true&size=" + pageSize + "&sort=date&orderType=desc";
       
@@ -80,9 +72,10 @@
       Logger.production("url = " + url);    
 
       var topic = {};
+      var comment = {};
       var from;
       var finalUrl;
-      
+      var j = 0;
       
         
       for (var i = 0; i < pages; i++) {
@@ -101,12 +94,11 @@
           
           var response = JSON.parse(xhr.responseText);
 
-          //Logger.warning(response.results.length + ' results returned in that call[' + i + "]", '500500');
-          
-
-          for (var j = 0; j < response.results.length; j++) {
+          for (j = 0; j < response.results.length; j++) {
             var currentNode = response.results[j];
             
+            Logger.debug('page[' + i + ']  /  post[' + j + ']');
+
             var page = {
               activityType: "1",
               itemType: "4",
@@ -145,20 +137,19 @@
                     
                     body: currentNode.content,
                     title: currentNode.title,
-                    description: currentNode.category, //Val
-                    //writeDate: currentNode.date
+                    description: currentNode.category, 
+
                     writeDate: currentNode.collection_date
           
                   };
 
-                  //if (currentNode.post_id) {
-                  //  topic.externalId = currentNode.post_id;
-                  //} else {
-                    topic.externalId = currentNode.id;
-                  //}
+                  topic.externalId = currentNode.id;
+
           
                   if (!collectedWriters[writer.externalId]) {
                     executor.addEntity(writer);
+                    cntAuthor++;
+                    totalCollected++;
                     collectedWriters[writer.externalId] = true;
                   }
                   if (!collectedPages[page.externalId]) {
@@ -167,10 +158,10 @@
                   }
         
                   executor.addEntity(topic);
-                  
-                  totalCollected+=1;
+                  cntTopic++;
+                  totalCollected++;
               }else{ //Comment
-                topic = {
+                comment = {
                   activityType: "1",
                   itemType: "3",
                   type: '1', 
@@ -181,30 +172,27 @@
                   
                   body: currentNode.content,
                   title: currentNode.title,
-                  description: currentNode.category, //Val
-                  //writeDate: currentNode.date
+                  description: currentNode.category, 
+
                   writeDate: currentNode.collection_date
         
                 };
 
-                //if (currentNode.post_id) {
-                //  topic.externalId = currentNode.post_id;
-                //} else {
-                  topic.externalId = currentNode.id;
+
+                comment.externalId = currentNode.id;
                 //}
         
                 if (!collectedWriters[writer.externalId]) {
                   executor.addEntity(writer);
+                  cntAuthor++;
+                  totalCollected++;
                   collectedWriters[writer.externalId] = true;
                 }
-                if (!collectedPages[page.externalId]) {
-                  executor.addEntity(page);
-                  collectedPages[page.externalId] = true;
-                }
+
       
-                executor.addEntity(topic);
-                
-                totalCollected+=1;
+                executor.addEntity(comment);
+                cntComment++;
+                totalCollected++;
               }
             } else {
                 Logger.debug(timestamp + ' Exceeding days-back criteria', '900300');
@@ -217,12 +205,16 @@
         } else {
             Logger.warning('we dont have response', '500504');
             noMoreResponse++;
+            j--; //repeat the same request;
             if(noMoreResponse > 10)
             {
               Logger.warning('It seems there are no more results', '500102');
               
-              Logger.warning("DONE:" + totalCollected + ' Total results were collected', '500102');    
-              Logger.warning("DONE:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+              Logger.warning("DONE1:" + totalCollected + ' Total results were collected', '500102');    
+              Logger.warning("DONE2:" + cntAuthor + ' Total Author were collected', '500102');    
+              Logger.warning("DONE3:" + cntTopic + ' Total Topic were collected', '500102');    
+              Logger.warning("DONE4:" + cntComment + ' Total Comment were collected', '500102');    
+              Logger.warning("DONE5:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
               executor.ready();
               Logger.production('STILL HERE?');
             }
@@ -234,6 +226,9 @@
       } //EO FOR (i)
     
       Logger.warning("DONE:" + totalCollected + ' Total results were collected', '500102');    
+      Logger.warning("DONE:" + cntAuthor + ' Total Author were collected', '500102');    
+      Logger.warning("DONE:" + cntTopic + ' Total Topic were collected', '500102');    
+      Logger.warning("DONE:" + cntComment + ' Total Comment were collected', '500102');    
       Logger.warning("DONE:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
 
       executor.ready();
