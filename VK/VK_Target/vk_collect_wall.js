@@ -2,7 +2,7 @@ function main(re, ie, oe, executor) {
     //=====================================================================
     if (re.executionContext.indexOf("wall") === -1) {
         executor.ready();
-	}
+    }
 	persistDataSettings.flushAt = 20;
 	persistDataSettings.useSaveBinaryForVideos = true;
 	//Initialize Global Settings
@@ -714,15 +714,15 @@ function main(re, ie, oe, executor) {
 
 			var postInterval = setInterval(function() {
 
-				Logger.debug("1");
+				Logger.production("1");
 				if (checkAllCollected(collectedResults)) {
 
 					var result = results.snapshotItem(cntItems);
-					Logger.debug("2");
+					Logger.production("2");
 
 					if (!isCollectionLimitReached() && result) {
 
-						Logger.debug("3");
+						Logger.production("3");
 
 						if (debug) Logger.production('Collect post #' + cntItems);
 						getPost(result, theTargetID);

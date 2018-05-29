@@ -76,9 +76,9 @@
       var from;
       var finalUrl;
       var j = 0;
-      
+      var i = 0;
         
-      for (var i = 0; i < pages; i++) {
+      for (i = 0; i < pages; i++) {
         if (i == 0) {
           from = "&from=0";
           finalUrl = url + from;
@@ -87,11 +87,13 @@
             finalUrl = url + from;
         }
         var xhr = new XMLHttpRequest();
+        Logger.debug("URL[" + i + "] = " + finalUrl, '500100');
         xhr.open("GET", finalUrl, false);
         xhr.send();
-        
+        Logger.debug("Status[" + i + "] = " + xhr.status, '500100');
         if (xhr.status == "200") {
           
+          noMoreResponse = 0;
           var response = JSON.parse(xhr.responseText);
 
           for (j = 0; j < response.results.length; j++) {
@@ -203,33 +205,35 @@
             
             }
         } else {
-            Logger.warning('we dont have response', '500504');
             noMoreResponse++;
-            j--; //repeat the same request;
-            if(noMoreResponse > 10)
+            
+            Logger.warning('On the iteration [' + i + '] we dont have response [' + noMoreResponse + '] times', '500504');
+            i--; //repeat the same request;
+            
+            if(noMoreResponse >= 10)
             {
               Logger.warning('It seems there are no more results', '500102');
               
-              Logger.warning("DONE1:" + totalCollected + ' Total results were collected', '500102');    
-              Logger.warning("DONE2:" + cntAuthor + ' Total Author were collected', '500102');    
-              Logger.warning("DONE3:" + cntTopic + ' Total Topic were collected', '500102');    
-              Logger.warning("DONE4:" + cntComment + ' Total Comment were collected', '500102');    
-              Logger.warning("DONE5:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+              Logger.warning("DONE1: " + totalCollected + ' Total results were collected', '500102');    
+              Logger.warning("DONE2: " + cntAuthor + ' Total Author were collected', '500102');    
+              Logger.warning("DONE3: " + cntTopic + ' Total Topic were collected', '500102');    
+              Logger.warning("DONE4: " + cntComment + ' Total Comment were collected', '500102');    
+              Logger.warning("DONE5: " + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
               executor.ready();
               Logger.production('STILL HERE?');
             }
         }
         
         executor.flushEntities();
-        Logger.debug("URL[" + i + "] = " + finalUrl, '500100');
+        //Logger.debug("URL[" + i + "] = " + finalUrl, '500100');
 
       } //EO FOR (i)
     
-      Logger.warning("DONE:" + totalCollected + ' Total results were collected', '500102');    
-      Logger.warning("DONE:" + cntAuthor + ' Total Author were collected', '500102');    
-      Logger.warning("DONE:" + cntTopic + ' Total Topic were collected', '500102');    
-      Logger.warning("DONE:" + cntComment + ' Total Comment were collected', '500102');    
-      Logger.warning("DONE:" + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+      Logger.warning("DONE: " + totalCollected + ' Total results were collected', '500102');    
+      Logger.warning("DONE: " + cntAuthor + ' Total Author were collected', '500102');    
+      Logger.warning("DONE: " + cntTopic + ' Total Topic were collected', '500102');    
+      Logger.warning("DONE: " + cntComment + ' Total Comment were collected', '500102');    
+      Logger.warning("DONE: " + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
 
       executor.ready();
     }
