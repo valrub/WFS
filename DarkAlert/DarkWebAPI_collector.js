@@ -1,7 +1,7 @@
 
     function main(re, ie, oe, executor) {
       var pages = 1;
-      var maxPages = 250;
+      var maxPages = 101;
       var daysBack = 0;
       var pageSize = 100;
       //Days back default
@@ -23,7 +23,7 @@
       var cntComment = 0;
 
 
-      setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
+      setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
       pages = maxPages;
 
@@ -210,7 +210,7 @@
             Logger.warning('On the iteration [' + i + '] we dont have response [' + noMoreResponse + '] times', '500504');
             i--; //repeat the same request;
             
-            if(noMoreResponse >= 10)
+            if(noMoreResponse >= 3)
             {
               Logger.warning('It seems there are no more results', '500102');
               
@@ -219,22 +219,28 @@
               Logger.warning("DONE3: " + cntTopic + ' Total Topic were collected', '500102');    
               Logger.warning("DONE4: " + cntComment + ' Total Comment were collected', '500102');    
               Logger.warning("DONE5: " + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+              
+              break;
               executor.ready();
+              
               Logger.production('STILL HERE?');
             }
         }
         
         executor.flushEntities();
-        //Logger.debug("URL[" + i + "] = " + finalUrl, '500100');
+        
+        Logger.production("Page[" + i + "] SO FAR COLLECTED " + totalCollected, '500100');
 
       } //EO FOR (i)
     
-      Logger.warning("DONE: " + totalCollected + ' Total results were collected', '500102');    
-      Logger.warning("DONE: " + cntAuthor + ' Total Author were collected', '500102');    
-      Logger.warning("DONE: " + cntTopic + ' Total Topic were collected', '500102');    
-      Logger.warning("DONE: " + cntComment + ' Total Comment were collected', '500102');    
-      Logger.warning("DONE: " + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
-
+      // Logger.warning("DONE: " + totalCollected + ' Total results were collected', '500102');    
+      // Logger.warning("DONE: " + cntAuthor + ' Total Author were collected', '500102');    
+      // Logger.warning("DONE: " + cntTopic + ' Total Topic were collected', '500102');    
+      // Logger.warning("DONE: " + cntComment + ' Total Comment were collected', '500102');    
+      // Logger.warning("DONE: " + totalNotCollectedDueToDate + ' Total results were not collected due to date limit', '500102');
+      
+      
+      Logger.production("Succesfully completed with " + totalCollected + "records", '500102');
       executor.ready();
     }
 
