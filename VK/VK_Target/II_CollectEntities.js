@@ -96,7 +96,7 @@ function main(re, ie, oe, executor) {
                 Logger.production("number of records to be collected : " + max);
             }
             Logger.production(" In collectSharers ");
-
+            
             for (var i = 0; i < max; i++) {
 
                 var curr = sharers.snapshotItem(i);

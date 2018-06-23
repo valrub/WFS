@@ -4,9 +4,9 @@ function main(re, ie, oe, executor) {
         executor.ready();
     }
     persistDataSettings.flushAt = 20;
-	persistDataSettings.useSaveBinaryForVideos = true;
+    persistDataSettings.useSaveBinaryForVideos = true;
 	//Initialize Global Settings
-	setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
+	setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
 	executionContext = {
 		globalLogExtracted: false, //change to false before release;
@@ -35,7 +35,7 @@ function main(re, ie, oe, executor) {
 
 	//=====================================================================
 	var CAName = "VK Wall Collect";
-	Logger.production(CAName + " Start Time: " + new Date());
+	Logger.production(CAName + " Start Time: " + new Date(), "500100");
 
 	//===============================================================================
 	// -------------------  Here extract logic begins  ------------------------------
@@ -68,7 +68,7 @@ function main(re, ie, oe, executor) {
 
 			 if (moreCommentsFound)
 			{
-				Logger.production('Am planning to expand comments (MORE THAN THREE)');
+				Logger.debug('Am planning to expand comments (MORE THAN THREE)');
 
 				//HOW MANY COMMENTS ARE MENTIONED?
 				//xp = postCommentsValue 
@@ -118,7 +118,7 @@ function main(re, ie, oe, executor) {
 
 					if ((cnt > 5) || !keepWaiting)
 					{	
-						Logger.production("MASPIK!");
+						Logger.production("MASPIK!", "500100");
 
 						clearInterval(seeAllExpanded);
 						removeFromQueue("getPost");
@@ -159,7 +159,6 @@ function main(re, ie, oe, executor) {
 				"vPostText"
 			).Value;
 
-			//Logger.production('VAL_PostText Text 1 = ' + vPostText);
 
 			var vPostTextAlt = _extract.GetAttribute({
 					context: thisNode,
@@ -169,14 +168,14 @@ function main(re, ie, oe, executor) {
 				},
 				"vPostTextAlt"
 			).Value;
-			//Logger.production('VAL_PostText Image 2 = ' + vPostTextAlt);
+
 
 			if(!vPostText) // it could be emoji
 			{	
 				vPostText = vPostTextAlt;
 			}
 
-			Logger.production('VAL_PostText Final = ' + vPostText);
+			Logger.debug('VAL_PostText Final = ' + vPostText);
 
 			var vCopyPostText = _extract.GetText({
 					context: thisNode,
@@ -202,11 +201,11 @@ function main(re, ie, oe, executor) {
 				},
 				"aCopyPostAuthorUrl").Value;
 			if (!(/https:\/\/vk.com/g.test(aCopyPostAuthorUrl))) {
-				Logger.production("1 aCopyPostAuthorUrl : " + aCopyPostAuthorUrl);
+				Logger.debug("1 aCopyPostAuthorUrl : " + aCopyPostAuthorUrl);
 				aCopyPostUrl = "https://vk.com" + aCopyPostAuthorUrl;
 
 			} else {
-				Logger.production("2 aCopyPostAuthorUrl : " + aCopyPostAuthorUrl);
+				Logger.debug("2 aCopyPostAuthorUrl : " + aCopyPostAuthorUrl);
 			}
 
 			var vPublishedCommentText = _extract.GetText({
@@ -226,9 +225,9 @@ function main(re, ie, oe, executor) {
 
 			if (!(/https:\/\/vk.com/g.test(aCopyPostUrl))) {
 				aCopyPostUrl = "https://vk.com" + aCopyPostUrl;
-				Logger.production("1 aCopyPostUrl : " + aCopyPostUrl);
+				Logger.debug("1 aCopyPostUrl : " + aCopyPostUrl);
 			} else {
-				Logger.production("2 aCopyPostUrl : " + aCopyPostUrl);
+				Logger.debug("2 aCopyPostUrl : " + aCopyPostUrl);
 			}
 
 			var aCopyPostDate = _extract.GetText({
@@ -255,14 +254,14 @@ function main(re, ie, oe, executor) {
 			}, "aPostUrl").Value;
 			if (!(/https:\/\/vk.com/g.test(aPostUrl))) {
 				aPostUrl = "https://vk.com" + aPostUrl;
-				Logger.production("1 aPostUrl : " + aPostUrl);
+				Logger.debug("1 aPostUrl : " + aPostUrl);
 			} else {
-				Logger.production("2 aPostUrl : " + aPostUrl);
+				Logger.debug("2 aPostUrl : " + aPostUrl);
 			}
 
 			var postID = aPostUrl.substring(aPostUrl.indexOf('com/wall') + 8, aPostUrl.length); //POSTID
 			
-			Logger.production("PostID = " + postID);
+			Logger.debug("PostID = " + postID);
 
 			var likesKeyValue = _extract.GetText({
 					context: thisNode,
@@ -294,9 +293,6 @@ function main(re, ie, oe, executor) {
 				mandatory: "0"
 			}, "aPostImg");
 
-			//Logger.production('VAL_COLL SNAPSHOT = ' + aPostImg.SnapshotValue.snapshotLength); 
-			//Logger.production(aPostImg.SnapshotValue);
-			
 
 			var aPostVideo = _extract.GetCollection({
 				context: thisNode,
@@ -342,7 +338,7 @@ function main(re, ie, oe, executor) {
 				mandatory: "0"
 			}, "commentsX");
 
-			Logger.production('commentsX = ' + comments.SnapshotValue.innerHTML); //VAL12
+	
 
 			var originalPoster = {};
 			
@@ -425,7 +421,7 @@ function main(re, ie, oe, executor) {
 
 				if (likesKeyValue.length > 0) {
 
-					Logger.production("likesKeyValue : " + likesKeyValue);
+					Logger.debug("likesKeyValue : " + likesKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -442,7 +438,7 @@ function main(re, ie, oe, executor) {
 
 				if (sharesKeyValue.length > 0) {
 
-					Logger.production("sharesKeyValue : " + sharesKeyValue);
+					Logger.debug("sharesKeyValue : " + sharesKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -457,7 +453,7 @@ function main(re, ie, oe, executor) {
 
 				}
 				if (viewsKeyValue.length > 0) {
-					Logger.production("viewsKeyValue : " + viewsKeyValue);
+					Logger.debug("viewsKeyValue : " + viewsKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -505,7 +501,7 @@ function main(re, ie, oe, executor) {
 				}
 				if (likesKeyValue.length > 0) {
 
-					Logger.production("likesKeyValue : " + likesKeyValue);
+					Logger.debug("likesKeyValue : " + likesKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -520,7 +516,7 @@ function main(re, ie, oe, executor) {
 				}
 				if (sharesKeyValue.length > 0) {
 
-					Logger.production("sharesKeyValue : " + sharesKeyValue);
+					Logger.debug("sharesKeyValue : " + sharesKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -535,7 +531,7 @@ function main(re, ie, oe, executor) {
 
 				}
 				if (viewsKeyValue.length > 0) {
-					Logger.production("viewsKeyValue : " + viewsKeyValue);
+					Logger.debug("viewsKeyValue : " + viewsKeyValue, "500100");
 					//Key-value for likes
 					addEntity({
 						itemType: "24", // Key-Value
@@ -549,15 +545,15 @@ function main(re, ie, oe, executor) {
 				}
 
 			}
-			Logger.production("__asyncQueue.length = " + __asyncQueue.length);
+			Logger.debug("__asyncQueue.length = " + __asyncQueue.length);
 
 			var waitCollection = setInterval(function() {
 				if (__asyncQueue.length === 1) {
 					clearInterval(waitCollection);
 					removeFromQueue("processPost");
 					cntItems++;
-					Logger.production("We are going to collect next post");
-					Logger.production("__asyncQueue.length = " + __asyncQueue.length);
+					Logger.debug("We are going to collect next post");
+					Logger.debug("__asyncQueue.length = " + __asyncQueue.length);
 				}
 			}, 500);
 		} catch (e) {
@@ -573,7 +569,7 @@ function main(re, ie, oe, executor) {
 	function collectComments(parent, currNode) {
 		addToQueue("collectComments");
 		try {
-			Logger.production(" In collectComments ");
+			Logger.production(" In collectComments ", "500100");
 
 			var iterator = currNode.Value;
 			var curr = true;
@@ -725,11 +721,11 @@ function main(re, ie, oe, executor) {
 
 	function collectImage(parent, currImgNode) {
 
-		Logger.production("currImgNode.SnapshotValue.snapshotLength = " + currImgNode.SnapshotValue.snapshotLength);
+	
 		addToQueue("collectImage");
 
 		try {
-			Logger.production(" In collectImage ");
+			Logger.production(" In collectImage ", "500100");
 			
 			
 
@@ -774,7 +770,7 @@ function main(re, ie, oe, executor) {
 				}else
 					var theLoc = 'NO LOCATION';
 				
-				Logger.production('ИТАК: ' + theLoc + '  -  ' + theUrl);
+				Logger.debug('ИТАК: ' + theLoc + '  -  ' + theUrl);
 				//----------------------->
 
 
@@ -787,7 +783,7 @@ function main(re, ie, oe, executor) {
 
 				
 				img.imageUrl = theUrl; //linkToImg.match(/http(.+\b)/g)[0]; //curr.getAttribute("style").match(/http(.+\b)/g)[0];
-				//Logger.production("VAL_NODE-4 :" + img.imageUr);
+				
 				img.url = parent.url;
 				img.externalId = "img_id_" + hashCode(img.imageUrl);
 				img.activityType = "1";
@@ -806,10 +802,10 @@ function main(re, ie, oe, executor) {
 		addToQueue("collectVideo");
 
 		try {
-			Logger.production(" In collectVideo ");
+			Logger.production(" In collectVideo ", "500100");
 			var iterator = currVideoNode.Value;
 			var curr = iterator.iterateNext();
-			Logger.production("currVideoNode.Length = " + currVideoNode.Length);
+			Logger.debug("currVideoNode.Length = " + currVideoNode.Length);
 			while (curr) {
 				var videoUrl = document.evaluate(".//video", curr, null, 9, null).singleNodeValue.getAttribute("src");
 				var video = {};
@@ -825,7 +821,7 @@ function main(re, ie, oe, executor) {
 				video.activityType = "1";
 
 				addImage(video);
-				Logger.production(" In collectVideo ");
+				Logger.production(" In collectVideo ", "500100");
 				curr = iterator.iterateNext();
 			}
 
@@ -864,7 +860,7 @@ function main(re, ie, oe, executor) {
 					coordinateY: "100",
 					coordinateY_1_1: parent.url
 				});
-				Logger.production('URL is ' + re.url + "?w=likes%2Fwall" + dataId);
+				Logger.debug('URL is ' + re.url + "?w=likes%2Fwall" + dataId);
 
 			}
 			removeFromQueue("collectLikes");
@@ -890,7 +886,7 @@ function main(re, ie, oe, executor) {
 					coordinateY: "100",
 					coordinateY_1_1: parent.url
 				});
-				Logger.production('URL is ' + re.url + "?w=likes%2Fwall" + dataId);
+				Logger.debug('URL is ' + re.url + "?w=likes%2Fwall" + dataId);
 
 			}
 			removeFromQueue("collectShares");
@@ -906,15 +902,15 @@ function main(re, ie, oe, executor) {
 		try {
 			var results = document.evaluate(xpaths.VK_Target.vPosts, document, null, 7, null);
 
-			Logger.production("We have : " + results.snapshotLength + " posts.");
+			Logger.production("We have : " + results.snapshotLength + " posts.", "500500");
 
 			var postInterval = setInterval(function() {
 
-				//Logger.production("collectWall 1");
+
 				if (checkAllCollected(collectedResults)) {
 
 					var result = results.snapshotItem(cntItems);
-					//Logger.production("collectWall 2");
+
 
 					if (!isCollectionLimitReached() && result) {
 						if (debug) Logger.production('Collect post #' + cntItems);
@@ -923,11 +919,11 @@ function main(re, ie, oe, executor) {
 
 					} else {
 						
-						Logger.production("We reach the maximum number of posts");
+						Logger.production("We reach the maximum number of posts", "500102");
 						clearInterval(postInterval);
 						Logger.production(CAName + " End Time: " + new Date());
-						Logger.production('photos url is ' + re.placeholder2);
-						Logger.production('friends url is ' + re.gender);
+						Logger.production('photos url is ' + re.placeholder2, "500100");
+						Logger.production('friends url is ' + re.gender, "500100");
 						finalize();
 
 					}
@@ -963,7 +959,7 @@ function main(re, ie, oe, executor) {
 
 	function checkAllCollected(collectedResults) {
 		if (debug && __asyncQueue.length === 0 && collectedResults !== 0) {
-			Logger.production("--- Collected ---\nCOMMENTS: " + collectedComments + "\nLIKES: " + collectedLikes + "\nTAGGED: " + collectedTags + "\nSHARES: " + collectedShares);
+			Logger.production("--- Collected ---\nCOMMENTS: " + collectedComments + "\nLIKES: " + collectedLikes + "\nTAGGED: " + collectedTags + "\nSHARES: " + collectedShares, "500500");
 		}
 		return (__asyncQueue.length === 0);
 	}

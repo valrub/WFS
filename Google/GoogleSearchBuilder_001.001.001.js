@@ -1,4 +1,4 @@
-function BuilGoogleSearchUrl(keywords, exclude, num, language, sinceDate, untilDate, domain ) {
+function BuildGoogleSearchUrl(keywords, exclude, num, language, sinceDate, untilDate, domain ) {
   //#region DECLARATIONS
 
    var _url = "";
@@ -69,9 +69,9 @@ function BuilGoogleSearchUrl(keywords, exclude, num, language, sinceDate, untilD
 
       // - - - - - - (5) Since/Till when to search for results - - - - - - - - - -  - - - -]
       if (sinceDate || tillDate) {
-        var cleanSinceDate = sinceDate.substring(0,8);  
-        var cleanUntilDate = untilDate.substring(0,8);
-    
+        var cleanSinceDate = sinceDate.substring(0,10);  
+        var cleanUntilDate = untilDate.substring(0,10);
+
         var formattedSinceDate = convertDateToGoogle(formatInputDate(cleanSinceDate));
         var formattedUntilDate = convertDateToGoogle(formatInputDate(cleanUntilDate));
         
@@ -114,16 +114,19 @@ function BuilGoogleSearchUrl(keywords, exclude, num, language, sinceDate, untilD
   }
 
   function formatInputDate(inp) {
-    const d = inp.split('.');
-    d[2] = '20' + d[2];
+    const d = inp.split('-');
+
     let temp = d[0];
     d[0] = d[1];
-    d[1] = temp;
+    d[1] = d[2];
+    d[2] = temp;
+
+
     return new Date(d.join(' '));
     }
     
     function convertDateToGoogle(date) {
-    return `${date.getDate()}/${zeroPrefixedMonth(date)}/${date.getFullYear()}`;
+    return `${zeroPrefixedMonth(date)}/${date.getDate()}/${date.getFullYear()}`;
     }
     
     function zeroPrefixedMonth(date) {
@@ -135,5 +138,5 @@ function BuilGoogleSearchUrl(keywords, exclude, num, language, sinceDate, untilD
     } 
 
 
-  var x = BuilGoogleSearchUrl("каждый охотник желает", "где сидит", "10", "lang_ru", "01.06.17 at 00:00", "30.05.18 at 00:00", "rambler.ru");
-  console.log(x.resultUrl);
+   var x = BuildGoogleSearchUrl("каждый охотник желает", "где сидит", "10", "lang_ru", "2018-05-31T21:00:00.000Z", "2018-06-29T21:00:00.000Z", "");
+   console.log(x.resultUrl);

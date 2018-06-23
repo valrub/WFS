@@ -134,23 +134,19 @@ function main(re, ie, oe, executor) {
 		}
 	}
 
-	function ProcessComments(thisNode, parentExternalId){
 
-		var comments;
+	// ===============================================================================================================
+	
+	function getPost(thisNode, parentExternalId) {
+		addToQueue("getPost");
 
+
+		Logger.production('<------------------- NODE --------------------- # ' + cntItems);
+			Logger.production(thisNode.innerHTML);
+		Logger.production('<------------------- NODE --------------------->');
 
 
 		try {
-			Logger.production('VAL_NEW: 3');
-
-			comments = _extract.GetCollection({
-							context: thisNode,
-							xpathName: "commentContainers", 
-							mandatory: "0"
-						}, "comments");
-
-			Logger.production('FOUND AFTER EXPANDING COMMENTS1: ' + JSON.stringify(comments.SnapshotValue));
-
 			Logger.production(" In getPost ");
 			var vPostText = _extract.GetText({
 					context: thisNode,
@@ -340,106 +336,106 @@ function main(re, ie, oe, executor) {
 
 
 
-			// // BEFORE COLLECTING COMMENTS TRY TO EXPAND ALL -----------------------------------------------------
-			// var resultPosts = document.evaluate(".//a[contains(text(), 'Show all')] | .//a[contains(text(), 'Show the last')]", thisNode, null, 7, null);
+			// BEFORE COLLECTING COMMENTS TRY TO EXPAND ALL -----------------------------------------------------
+			var resultPosts = document.evaluate(".//a[contains(text(), 'Show all')] | .//a[contains(text(), 'Show the last')]", thisNode, null, 7, null);
 
-			// var len = resultPosts.snapshotLength;
+			var len = resultPosts.snapshotLength;
 
-			// Logger.production('EXPAND - ' + len);
+			Logger.production('EXPAND - ' + len);
 
-			// var moreCommentsFound = (len > 0);
-			// var cnt;
-			// cnt = 0; 
-			// var comments = {};
+			var moreCommentsFound = (len > 0);
+			var cnt;
+			cnt = 0; 
+			var comments = {};
 			
-			// Logger.production('VAL: moreCommentsFound = ' + moreCommentsFound);
+			Logger.production('VAL: moreCommentsFound = ' + moreCommentsFound);
 
-			// if (moreCommentsFound)
-			// {
-			// 	Logger.production('Im Here - 1 (more than three)');
-			// 	try {
-			// 			var el = resultPosts.snapshotItem(0); //First element to be processed
+			if (moreCommentsFound)
+			{
+				Logger.production('Im Here - 1 (more than three)');
+				try {
+						var el = resultPosts.snapshotItem(0); //First element to be processed
 
-			// 			if (el.fireEvent) {
-			// 				el.fireEvent('onclick');
-			// 			} else {
-			// 				var evObj = document.createEvent('Events');
-			// 				evObj.initEvent("click", true, false);
-			// 				el.dispatchEvent(evObj);
-			// 			}
-			// 			Logger.production("VAL - SEEMS CLICKED"); 
-			// 	} catch (e) {
-			// 		Logger.error("VAL CLICK ERROR", "eventFire() :: " + e + " at line " + e.lineNumber);
-			// 	}
+						if (el.fireEvent) {
+							el.fireEvent('onclick');
+						} else {
+							var evObj = document.createEvent('Events');
+							evObj.initEvent("click", true, false);
+							el.dispatchEvent(evObj);
+						}
+						Logger.production("VAL - SEEMS CLICKED"); 
+				} catch (e) {
+					Logger.error("VAL CLICK ERROR", "eventFire() :: " + e + " at line " + e.lineNumber);
+				}
 
-			// 	Logger.production('TPOINT 1'); 
-			// 	// var t1 = Date.now();
-			// 	// Logger.debug(t1);
+				Logger.production('TPOINT 1'); 
+				// var t1 = Date.now();
+				// Logger.debug(t1);
 				
-			// 	// var jj= 0;
-			// 	// for(jj = 0; jj <= 100000; jj++)
-			// 	// {
-			// 	// 	console.log(jj);
-			// 	// }
-			// 	// var t2 = Date.now();
+				// var jj= 0;
+				// for(jj = 0; jj <= 100000; jj++)
+				// {
+				// 	console.log(jj);
+				// }
+				// var t2 = Date.now();
 
-			// 	// var td = t2 - t1;
+				// var td = t2 - t1;
 
 				
-			// 	// Logger.debug(t2)
-			// 	// Logger.debug(td)
-			// 	// Logger.production('TPOINT 2'); 
+				// Logger.debug(t2)
+				// Logger.debug(td)
+				// Logger.production('TPOINT 2'); 
 
-			// 	//Now, ensure that all comments are rendered
-			// 	var seeAllExpanded = setInterval(function(){
-			// 		cnt++;					
-			// 		var postResultPosts = document.evaluate(".//a[contains(text(), 'Hide')]", thisNode, null, 7, null);	
-			// 		Logger.production('VAL_HIDE_FOUND = ' + postResultPosts.snapshotLength);
-			// 		var keepWaiting = (postResultPosts.snapshotLength == 0);				
+				//Now, ensure that all comments are rendered
+				var seeAllExpanded = setInterval(function(){
+					cnt++;					
+					var postResultPosts = document.evaluate(".//a[contains(text(), 'Hide')]", thisNode, null, 7, null);	
+					Logger.production('VAL_HIDE_FOUND = ' + postResultPosts.snapshotLength);
+					var keepWaiting = (postResultPosts.snapshotLength == 0);				
 					
-			// 		Logger.debug("keepWaiting = " + keepWaiting);
+					Logger.debug("keepWaiting = " + keepWaiting);
 
-			// 		if ((cnt <= 10) && keepWaiting)
-			// 		{	
-			// 			Logger.production("Cnt + " + cnt); 
-			// 		}else{
-			// 			clearInterval(seeAllExpanded);
+					if ((cnt <= 10) && keepWaiting)
+					{	
+						Logger.production("Cnt + " + cnt); 
+					}else{
+						clearInterval(seeAllExpanded);
 
 						
-			// 			Logger.production("MASPIK!");
+						Logger.production("MASPIK!");
 						
-			// 			comments = _extract.GetCollection({
-			// 				context: thisNode,
-			// 				xpathName: "commentContainers", //VAL13
-			// 				mandatory: "0"
-			// 			}, "comments");
+						comments = _extract.GetCollection({
+							context: thisNode,
+							xpathName: "commentContainers", //VAL13
+							mandatory: "0"
+						}, "comments");
 						
 			
-			// 			Logger.production('FOUND AFTER EXPANDING COMMENTS1: ' + JSON.stringify(comments.SnapshotValue));
+						Logger.production('FOUND AFTER EXPANDING COMMENTS1: ' + JSON.stringify(comments.SnapshotValue));
 						
-			// 		}
-			// 	}, 4000);
-			// }else{
-			// 	Logger.production('ONLY THREE');
-			// 	comments = _extract.GetCollection({
-			// 		context: thisNode,
-			// 		xpathName: "commentContainers", //VAL13
-			// 		mandatory: "0"
-			// 	}, "comments");
-			// }
+					}
+				}, 4000);
+			}else{
+				Logger.production('ONLY THREE');
+				comments = _extract.GetCollection({
+					context: thisNode,
+					xpathName: "commentContainers", //VAL13
+					mandatory: "0"
+				}, "comments");
+			}
 			
-			// Logger.production('Im Here - 2');
+			Logger.production('Im Here - 2');
 			
-			// //---------------------------------------------------------------------------------------------------
+			//---------------------------------------------------------------------------------------------------
 
 
 
 
-			// var comments = _extract.GetCollection({
-			// 	context: thisNode,
-			// 	xpathName: "commentContainers",
-			// 	mandatory: "0"
-			// }, "comments");
+			var comments = _extract.GetCollection({
+				context: thisNode,
+				xpathName: "commentContainers",
+				mandatory: "0"
+			}, "comments");
 
 
 
@@ -697,92 +693,10 @@ function main(re, ie, oe, executor) {
 			handleExeption(e, "getPost");
 		}
 
-    }
-
-	function getPost(thisNode, parentExternalId) {
-		addToQueue("getPost");
-
-		Logger.production('<------------------- GET POST (NODE)  --------------------- # ' + cntItems);
-			Logger.production(thisNode.innerHTML);
-		Logger.production('<------------------- NODE --------------------->');
-
-        // BEFORE COLLECTING COMMENTS TRY TO EXPAND ALL -----------------------------------------------------
-			var resultPosts = document.evaluate(".//a[contains(text(), 'Show all')] | .//a[contains(text(), 'Show the last')]", thisNode, null, 7, null);
-
-			var len = resultPosts.snapshotLength;
-
-			Logger.production('TP: Found ' + len + " button");
-
-			var moreCommentsFound = (len > 0);
-			
-			
-			Logger.production('TP: moreCommentsFound = ' + moreCommentsFound);
-
-			if (moreCommentsFound)
-			{
-				Logger.production('Lets Expand Comments (more than three)');
-				try {
-						var el = resultPosts.snapshotItem(0); //First element to be processed
-
-						Logger.debug('TP: What is the button?');
-						Logger.debug(el.innerHTML);
-
-
-						if (el.fireEvent) {
-							Logger.debug('FIRE-1');
-							el.fireEvent('onclick');
-						} else {
-							Logger.debug('FIRE-2');
-							var evObj = document.createEvent('Events');
-							evObj.initEvent("click", true, false);
-							el.dispatchEvent(evObj);
-						}
-						Logger.production("TP:SEEMS CLICKED"); 
-				} catch (e) {
-					Logger.error("VAL CLICK ERROR", "eventFire() :: " + e + " at line " + e.lineNumber);
-				}
-
-				Logger.production('TP: AFTER CLICK'); 
-
-				renderAllComments(thisNode, parentExternalId);
-				Logger.production('TP: After renderAllComments()');
-
-				
-			}else{
-				Logger.debug('TP: NO MORE COMMENTS. ONLY THREE');
-                ProcessComments(thisNode, parentExternalId);
-			}
-        }
-
-
-function renderAllComments(thisNode, parentExternalId){
-	Logger.production('<------------------- GET POST (NODE)  --------------------- # ' + cntItems);
-			Logger.production(thisNode.innerHTML);
-		Logger.production('<------------------- NODE --------------------->');
-	var cnt = 0;
-	Logger.production('Now, ensure that all comments are rendered');
-
-	//var seeAllExpanded = setInterval(function(){
-		cnt++;
-		for(cnt = 0; cnt <= 100000; cnt++){
-		Logger.debug('TP: Interval #' + cnt);
-
-		var postResultPosts = document.evaluate(".//a[contains(text(), 'Hide')]", thisNode, null, 7, null);	
-		Logger.production('TP: HIDE FOUND = ' + postResultPosts.snapshotLength);
-		var keepWaiting = (postResultPosts.snapshotLength == 0);				
-		
-		Logger.debug("TP: keepWaiting = " + keepWaiting);
-
-		if (!keepWaiting)
-		{
-			//clearInterval(seeAllExpanded);
-			Logger.debug('TP: CLEAR INTERVAL Cnt #' + cnt);
-			ProcessComments(thisNode, parentExternalId);
-			break;
-		}
 	}
-	//}, 4000);
-}
+	// ===============================================================================================================
+
+
 
 	function collectImage(parent, currImgNode) {
 
@@ -961,44 +875,91 @@ function renderAllComments(thisNode, parentExternalId){
 
 	}
 
+
+
 	function collectWall(pMarker, pContext) {
 		try {
 			var results = document.evaluate(xpaths.VK_Target.vPosts, document, null, 7, null);
 
+			Logger.production("We have : " + results.snapshotLength + " posts.");
+
 			var postInterval = setInterval(function() {
+
+				
 				if (checkAllCollected(collectedResults)) {
+
 					Logger.production('<==========================');
 						Logger.production('cntItems = ' + cntItems);
 						Logger.production('results.snapshotItem(cntItems) = ' + results.snapshotItem(cntItems).innerHTML);	
 					Logger.production('==========================>');
+					
+
 
 					var result = results.snapshotItem(cntItems);
+					
 
 					if(result)
 					{
-						Logger.debug("THERE ARE" + results.snapshotLength + " POSST.");
+						Logger.debug('ESHHHH');
 					}else{
-						Logger.debug('THERE ARE NO POSTS');
+						Logger.debug('EINNNN');
 					}
 
 					if (!isCollectionLimitReached() && result) {
 
+						Logger.production("3");
+
 						if (debug) Logger.production('Collect post #' + cntItems);
-						Logger.debug('TP: 1 BEFORE getPost()'); 
-								getPost(result, theTargetID); //VAL
-						Logger.debug('TP: 2 AFTER getPost()'); 
+						
+						getPost(result, theTargetID);
+
+
 					} else {
+						Logger.production("4");
 						Logger.production("We reach the maximum number of posts");
 						clearInterval(postInterval);
 						Logger.production(CAName + " End Time: " + new Date());
 						Logger.production('photos url is ' + re.placeholder2);
 						Logger.production('friends url is ' + re.gender);
 						finalize();
+
 					}
+
 				} else {
+					Logger.production("5");
 					Logger.production("checkAllCollected -> working..." + __asyncQueue);
+
 				}
+
 			}, 1000);
+
+			/*if (ttmp.returnCode === "200") {
+				var iterator = ttmp.Value;
+				Logger.production("We have : " + ttmp.Length + " posts. ");
+				var thisNode = iterator.iterateNext();
+				getPost(thisNode, theTargetID);
+
+				var postInterval = setInterval(function () {
+					if (postCollected) {
+						thisNode = iterator.iterateNext();
+						if (thisNode) {
+							cntItems++;
+							getPost(thisNode, theTargetID);
+						} else {
+
+							clearInterval(postInterval);
+							Logger.production(CAName + " End Time: " + new Date());
+							finalize();
+						}
+					}
+				}, 10);
+
+				_res.totalCollected = cntItems;
+				_res.returnCode = "200";
+			} else { //No info found
+				_res.totalCollected = 0;
+				_res.returnCode = "204";
+			}*/
 
 		} catch (e) {
 			handleExeption(e, "collectWall");
@@ -1006,6 +967,8 @@ function renderAllComments(thisNode, parentExternalId){
 
 	}
 
+
+	///////////////////////////////
 	function addToQueue(name) {
 		__asyncQueue.push(name);
 	} 
@@ -1044,4 +1007,7 @@ function renderAllComments(thisNode, parentExternalId){
 		removeFromQueue(name);
 		executor.reportError("500", "ERROR", name + "() :: " + e + " at line " + e.lineNumber, false);
 	}
+
+
+
 }
