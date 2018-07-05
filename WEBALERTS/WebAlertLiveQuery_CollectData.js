@@ -1,6 +1,6 @@
 function main(re, ie, oe, executor) {
   try {
-    setGlobalLogger(re, ie, oe, executor);
+    setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
 
     const maxRunDuration = 58; // Minutes - MAXIMUM TIME TO KEEP CA IN RUN MODE
 
@@ -109,7 +109,7 @@ function main(re, ie, oe, executor) {
     //--------------------------------------------------------------------------------------------------------------------
     function parseData(response) {
       
-      //Logger.production('{{{ response }}} ' + response);
+      Logger.production('{{{ response }}} ' + response);
       let collectedAccounts = [];
 
       let responseObj = JSON.parse(response);
@@ -133,11 +133,26 @@ function main(re, ie, oe, executor) {
           //DO NOT FOPRGET TO CHECK THE LAST EXTRACTED POSTID AND DO NOT CONTINUE IN CASE ..
           let author = {};
           author.externalId = responseObj[i].author.author_service_id;
+          
+          if(!author.externalId){
+            author.externalId = responseObj[i].author.name;    
+          }
+          
+          if(!author.externalId){
+            author.externalId = 'Anonimous_Author_' + responseObj[i].interaction.internal_id;    
+          }
+          
           author.itemType = "4"; // Web Entity
           author.type = "1"; // Person
           author.activityType = "1"; // Social Network
           author.url = responseObj[i].author.link;
           author.title = responseObj[i].author.name;
+
+          if(! author.title)
+          {
+            author.title = 'Anonimous_Author_' + responseObj[i].interaction.internal_id; 
+          }
+
           author.imageUrl = responseObj[i].author.avatar;
           collectedAccounts.push(author);
 
@@ -201,23 +216,8 @@ function main(re, ie, oe, executor) {
         }
         //DO NOT FOPRGET TO PERSIST THE LAST EXTRACTED POSTID
         re.placeholder10 = responseObj[i-1].interaction.sequence;
-        
-        //SAVE LAST Sequence for the next execution ------------------------------
-         //request WRITE
-         var xhr = new XMLHttpRequest();
-         xhr.open("POST", ie.restApiUrl + "cachingcollectionresult/save", false);
-         xhr.setRequestHeader('Content-type', 'application/json;charset=utf-8');
-
-          var persistedVal = {};
-            persistedVal.cycleId = ie.crawlerCycleId;
-            persistedVal.keyName = "LastSequence";
-            persistedVal.keyValue = re.placeholder10;
-        
-        //Logger.production('persistedVal = ' + JSON.stringify(persistedVal));
-         
-         xhr.send(JSON.stringify(persistedVal));
-         Logger.production("SAVED  LastSequence = " + re.placeholder10, '500500');
-        //---------------------------------------------------------------------------
+        Logger.production("THE LAST Sequence is " + re.placeholder10, '500100');
+        //Logger.production("Total remaining Posts are " + re.placeholder11, '500100');
       }
 
 
@@ -242,9 +242,23 @@ function main(re, ie, oe, executor) {
         re.placeholder13 = false;
         Logger.production('Finita la comedia ... It was running ' + (Math.round(totalExTime * 100) / 100) + ' minutes');
 
-        executor.ready();
 
+        //SAVE LAST Sequence for the next execution ------------------------------
+         //request WRITE
+         var xhr = new XMLHttpRequest();
+         xhr.open("POST", ie.restApiUrl + "cachingcollectionresult/save", false);
+         xhr.setRequestHeader('Content-type', 'application/json;charset=utf-8');
+
+          var persistedVal = {};
+            persistedVal.cycleId = ie.crawlerCycleId;
+            persistedVal.keyName = "LastSequence";
+            persistedVal.keyValue = re.placeholder10;
         
+        //Logger.production('persistedVal = ' + JSON.stringify(persistedVal));
+         
+         xhr.send(JSON.stringify(persistedVal));
+         Logger.production("SAVED  LastSequence = " + re.placeholder10, '500500');
+        //---------------------------------------------------------------------------
 
       }else{
         re.placeholder13 = true;
