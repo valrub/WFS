@@ -56,6 +56,7 @@ function main(re, ie, oe, executor) {
 
                 liker.itemType = "4";
                 liker.url = "https://vk.com/id" + likerId;
+                liker.sideB_externalId = likerId + 'point_4'; // VAL - CHANGES from WEB-2178
                 liker.type = "1";
                 liker.title = likerName;
                 liker.extractDate = "";
@@ -96,7 +97,7 @@ function main(re, ie, oe, executor) {
                 Logger.production("number of records to be collected : " + max);
             }
             Logger.production(" In collectSharers ");
-            
+
             for (var i = 0; i < max; i++) {
 
                 var curr = sharers.snapshotItem(i);
@@ -119,6 +120,7 @@ function main(re, ie, oe, executor) {
 
                 sharer.itemType = "4";
                 sharer.url = "https://vk.com/id" + sharerId;
+                sharer.sideB_externalId = sharerId + 'point_5'; // VAL - CHANGES from WEB-2178
                 sharer.type = "1";
                 sharer.title = sharerName;
                 sharer.extractDate = "";

@@ -100,6 +100,7 @@ function main(re, ie, oe, executor) {
 					img.parent_externalId = theTargetID;
 					img.parentObjectType = "4";
 					img.writer_externalId = theTargetID;
+					
 					img.writeDate = date;
 					img.itemType = "5";
 					img.imageUrl = thisNode.getAttribute("style").match(/(https.+.jpg)/g)[0];

@@ -3,12 +3,12 @@ function main(re, ie, oe, executor) {
     //Initialize Global Settings
     setGlobalLogger(re, ie, oe, executor);
 
-``
 
 
-	executionContext = {
+
+    executionContext = {
 		globalLogExtracted: false, //change to false before release;
-		globalWPXP: xpaths.VK_Target``
+		globalWPXP: xpaths.VK_Target
 	};
 
 	var _extract = new Extract(executionContext);
@@ -16,13 +16,14 @@ function main(re, ie, oe, executor) {
 
     //------------- VAL : check that VA is really loged in ---------------
 //setTimeout(function(){
+	Logger.production('before');
     var vProfileName = _extract.GetText({
                 xpathName: ".//div[@class='top_profile_name']",
         		mandatory: "0"
 			},
 			"ProfileName"
 		).Value;
-        Logger.production('Try to login. vProfileName = ' + vProfileName)
+        Logger.production('Try to login. vProfileName = ' + vProfileName);
         
         if(!(vProfileName === null)){
     		Logger.production("The agent logged in successfully!!!");
@@ -31,6 +32,7 @@ function main(re, ie, oe, executor) {
     	    Logger.failure("The agent did not log in! The flow will fail!!!", "400020");
             executor.ready();
 		}
+		Logger.production('after');
 //}, 3000);
 // --------------------------------------------------------------------
 
@@ -233,7 +235,7 @@ function main(re, ie, oe, executor) {
 
             //target.externalId = hashCode(window.location.href.toString().match(/https:\/\/vk\.com\/(.+)/)[1]);
             target.externalId = hashCode(rightID);
-
+            target.sideB_externalId = rightID + 'point_1'; // VAL - CHANGES from WEB-2178
             //target.description = rightID; //VAL
 
 			theTargetID = target.externalId;

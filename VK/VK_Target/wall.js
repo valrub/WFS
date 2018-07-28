@@ -4,9 +4,9 @@ function main(re, ie, oe, executor) {
         executor.ready();
     }
     persistDataSettings.flushAt = 20;
-    persistDataSettings.useSaveBinaryForVideos = true;
+	persistDataSettings.useSaveBinaryForVideos = true;
 	//Initialize Global Settings
-	setGlobalLogger(re, ie, oe, executor, debugLevel = 4);
+	setGlobalLogger(re, ie, oe, executor, debugLevel = 2);
 
 	executionContext = {
 		globalLogExtracted: false, //change to false before release;
@@ -40,117 +40,15 @@ function main(re, ie, oe, executor) {
 	//===============================================================================
 	// -------------------  Here extract logic begins  ------------------------------
 
+	/*_process.Run(collectWall, false, {
+		pMarker: '4',
+		functionName: 'collectWall'
+	});*/
 	collectWall();
 
-	function collectComments(parent, currNode) {
-		addToQueue("collectComments");
+	function getPost(thisNode, parentExternalId) {
+		addToQueue("getPost");
 		try {
-			Logger.production(" In collectComments ");
-			var iterator = currNode.Value;
-			var curr = true;
-			var i = 0; //iterator for the comment id
-
-			while (curr) {
-				curr = iterator.iterateNext();
-				if(curr === null){
-					break;
-				}
-				var aCommentImg = _extract.GetCollection({
-						context: curr,
-						xpathName: "aCommentImg",
-						mandatory: "0"
-					}, "aCommentImg");
-
-					var aCommentVideo = _extract.GetCollection({
-						context: curr,
-						xpathName: "aCommentVideo",
-						mandatory: "0"
-					}, "aCommentVideo");
-
-				i++;
-				var commentAuthor = document.evaluate(".//*[@class='reply_author']/a", curr, null, 9, null);
-				var currentComment = document.evaluate(".//*[@class='reply_text']//*[@class='wall_reply_text']", curr, null, 9, null);
-				var currentCommentDate = document.evaluate(".//*[@class='reply_date']//span", curr, null, 9, null);
-				var comment = {};
-				comment.itemType = "3";
-				comment.type = "1";
-				comment.parent_externalId = parent.externalId;
-				comment.parentObjectType = parent.itemType;
-				comment.url = parent.url;
-				comment.writer_externalId = "";
-				comment.writeDate = currentCommentDate.singleNodeValue.textContent;
-				comment.externalId = "comment_id_" + hashCode(comment.url + i);
-
-				var commenter = {};
-				if (commentAuthor.singleNodeValue.textContent) {
-					//commenter.externalId = hashCode(commentAuthor.singleNodeValue.textContent); //VAL
-					commenter.externalId = hashCode(commentAuthor.singleNodeValue.getAttribute("data-from-id")); //VAL
-					
-					//commenter.description = commentAuthor.singleNodeValue.getAttribute("data-from-id") + ' commenter .description line 1249'; //VAL
-
-					if (commentAuthor.singleNodeValue.href) {
-						commenter.url = commentAuthor.singleNodeValue.href;
-					} else {
-						commenter.url = "about:blank";
-					}
-					commenter.itemType = "4";
-					commenter.type = "1";
-					commenter.title = commentAuthor.singleNodeValue.textContent;
-					commenter.activityType = "1";
-
-					comment.writer_externalId = commenter.externalId;
-					if (allPostAuthors.indexOf(commenter.externalId) === -1) {
-						allPostAuthors += commenter.externalId + ";";
-						addEntity(commenter);
-						totalAuthors++;
-					}
-				}
-				
-				if (currentComment.singleNodeValue.textContent) {
-					comment.body = currentComment.singleNodeValue.textContent;
-				}
-				addEntity(comment);
-				if (aCommentImg.returnCode === "200") {
-					collectImage(comment, aCommentImg);
-				}
-				if (aCommentVideo.returnCode === "200") {
-					collectVideo(comment, aCommentVideo);
-				}
-
-
-			}
-			addEntity({
-				itemType: "24", // Key-Value
-				parent_externalId: parent.externalId,
-				parentObjectType: parent.itemType,
-				activityType: "1", // Integer
-				title: "COMMENTS",
-				body: i,
-				description: "comments_count"
-			});
-			removeFromQueue("collectComments");
-		} catch (e) {
-			handleExeption(e, "collectComments");
-		}
-	}
-
-	function ProcessComments(thisNode, parentExternalId){
-
-		var comments;
-
-
-
-		try {
-			Logger.production('VAL_NEW: 3');
-
-			comments = _extract.GetCollection({
-							context: thisNode,
-							xpathName: "commentContainers", 
-							mandatory: "0"
-						}, "comments");
-
-			Logger.production('FOUND AFTER EXPANDING COMMENTS1: ' + JSON.stringify(comments.SnapshotValue));
-
 			Logger.production(" In getPost ");
 			var vPostText = _extract.GetText({
 					context: thisNode,
@@ -159,26 +57,6 @@ function main(re, ie, oe, executor) {
 				},
 				"vPostText"
 			).Value;
-
-			Logger.production('VAL_PostText Text 1 = ' + vPostText);
-
-			var vPostTextAlt = _extract.GetAttribute({
-					context: thisNode,
-					xpathName: "//*[contains(@class,'_wall_post_cont')]/*[@class='wall_post_text']/img",
-					mandatory: "0",
-					attributeName: "alt"
-				},
-				"vPostTextAlt"
-			).Value;
-			Logger.production('VAL_PostText Image 2 = ' + vPostTextAlt);
-
-			if(!vPostText) // it could be emoji
-			{	
-				vPostText = vPostTextAlt;
-			}
-
-			Logger.production('VAL_PostText Final = ' + vPostText);
-
 
 			var vCopyPostText = _extract.GetText({
 					context: thisNode,
@@ -196,8 +74,6 @@ function main(re, ie, oe, executor) {
 				"vCopyPostAuthor"
 			).Value;
 
-			
-
 			var aCopyPostAuthorUrl = _extract.GetAttribute({
 					context: thisNode,
 					xpathName: "vCopyPostAuthor",
@@ -205,9 +81,6 @@ function main(re, ie, oe, executor) {
 					attributeName: "href"
 				},
 				"aCopyPostAuthorUrl").Value;
-                
-               
-            
 			if (!(/https:\/\/vk.com/g.test(aCopyPostAuthorUrl))) {
 				Logger.production("1 aCopyPostAuthorUrl : " + aCopyPostAuthorUrl);
 				aCopyPostUrl = "https://vk.com" + aCopyPostAuthorUrl;
@@ -254,23 +127,17 @@ function main(re, ie, oe, executor) {
 				"vPostDate"
 			).Value;
 
-			Logger.production ('VAL: vPostDate = ' + vPostDate); 
-
 			var aPostUrl = _extract.GetAttribute({
 				context: thisNode,
 				xpathName: "aPostUrl",
 				attributeName: "href",
 				mandatory: "0"
 			}, "aPostUrl").Value;
-            
-            Logger.production('VAL_PostURL = ' + aPostUrl);
-            
 			if (!(/https:\/\/vk.com/g.test(aPostUrl))) {
 				aPostUrl = "https://vk.com" + aPostUrl;
 				Logger.production("1 aPostUrl : " + aPostUrl);
 			} else {
 				Logger.production("2 aPostUrl : " + aPostUrl);
-				
 			}
 
 			var likesKeyValue = _extract.GetText({
@@ -337,127 +204,14 @@ function main(re, ie, oe, executor) {
 				mandatory: "0"
 			}, "aCopyPostVideo");
 
-
-
-
-			// // BEFORE COLLECTING COMMENTS TRY TO EXPAND ALL -----------------------------------------------------
-			// var resultPosts = document.evaluate(".//a[contains(text(), 'Show all')] | .//a[contains(text(), 'Show the last')]", thisNode, null, 7, null);
-
-			// var len = resultPosts.snapshotLength;
-
-			// Logger.production('EXPAND - ' + len);
-
-			// var moreCommentsFound = (len > 0);
-			// var cnt;
-			// cnt = 0; 
-			// var comments = {};
-			
-			// Logger.production('VAL: moreCommentsFound = ' + moreCommentsFound);
-
-			// if (moreCommentsFound)
-			// {
-			// 	Logger.production('Im Here - 1 (more than three)');
-			// 	try {
-			// 			var el = resultPosts.snapshotItem(0); //First element to be processed
-
-			// 			if (el.fireEvent) {
-			// 				el.fireEvent('onclick');
-			// 			} else {
-			// 				var evObj = document.createEvent('Events');
-			// 				evObj.initEvent("click", true, false);
-			// 				el.dispatchEvent(evObj);
-			// 			}
-			// 			Logger.production("VAL - SEEMS CLICKED"); 
-			// 	} catch (e) {
-			// 		Logger.error("VAL CLICK ERROR", "eventFire() :: " + e + " at line " + e.lineNumber);
-			// 	}
-
-			// 	Logger.production('TPOINT 1'); 
-			// 	// var t1 = Date.now();
-			// 	// Logger.debug(t1);
-				
-			// 	// var jj= 0;
-			// 	// for(jj = 0; jj <= 100000; jj++)
-			// 	// {
-			// 	// 	console.log(jj);
-			// 	// }
-			// 	// var t2 = Date.now();
-
-			// 	// var td = t2 - t1;
-
-				
-			// 	// Logger.debug(t2)
-			// 	// Logger.debug(td)
-			// 	// Logger.production('TPOINT 2'); 
-
-			// 	//Now, ensure that all comments are rendered
-			// 	var seeAllExpanded = setInterval(function(){
-			// 		cnt++;					
-			// 		var postResultPosts = document.evaluate(".//a[contains(text(), 'Hide')]", thisNode, null, 7, null);	
-			// 		Logger.production('VAL_HIDE_FOUND = ' + postResultPosts.snapshotLength);
-			// 		var keepWaiting = (postResultPosts.snapshotLength == 0);				
-					
-			// 		Logger.debug("keepWaiting = " + keepWaiting);
-
-			// 		if ((cnt <= 10) && keepWaiting)
-			// 		{	
-			// 			Logger.production("Cnt + " + cnt); 
-			// 		}else{
-			// 			clearInterval(seeAllExpanded);
-
-						
-			// 			Logger.production("MASPIK!");
-						
-			// 			comments = _extract.GetCollection({
-			// 				context: thisNode,
-			// 				xpathName: "commentContainers", //VAL13
-			// 				mandatory: "0"
-			// 			}, "comments");
-						
-			
-			// 			Logger.production('FOUND AFTER EXPANDING COMMENTS1: ' + JSON.stringify(comments.SnapshotValue));
-						
-			// 		}
-			// 	}, 4000);
-			// }else{
-			// 	Logger.production('ONLY THREE');
-			// 	comments = _extract.GetCollection({
-			// 		context: thisNode,
-			// 		xpathName: "commentContainers", //VAL13
-			// 		mandatory: "0"
-			// 	}, "comments");
-			// }
-			
-			// Logger.production('Im Here - 2');
-			
-			// //---------------------------------------------------------------------------------------------------
-
-
-
-
-			// var comments = _extract.GetCollection({
-			// 	context: thisNode,
-			// 	xpathName: "commentContainers",
-			// 	mandatory: "0"
-			// }, "comments");
-
-
-
-
-
-
-
-
+			var comments = _extract.GetCollection({
+				context: thisNode,
+				xpathName: "commentContainers",
+				mandatory: "0"
+			}, "comments");
 			var originalPoster = {};
 			
-			Logger.production('VAL_1.0');
-			Logger.production('VAL_1.1_vCopyPostAuthor = ' + vCopyPostAuthor);
-			Logger.production('VAL_2.1_vPostText = ' + vPostText);
-			Logger.production('Im Here - 3');
 			if (vCopyPostAuthor) {
-				Logger.production('Im Here - 4');
-				Logger.production('VAL_1.2_vCopyPostAuthor' + vCopyPostAuthor);
-
 				if (!aCopyPostAuthorUrl.indexOf("https")) {
 					originalPoster.url = aCopyPostAuthorUrl;
 					originalPoster.externalId = hashCode(vCopyPostAuthor);
@@ -466,8 +220,8 @@ function main(re, ie, oe, executor) {
 					originalPoster.externalId = hashCode(vCopyPostAuthor);
 				}
 
+                originalPoster.sideB_externalId = aCopyPostAuthorUrl; // + '_point_2.2'; // VAL - CHANGES from WEB-2178
 				originalPoster.itemType = "4";
-				originalPoster.sideB_externalId = aCopyPostAuthorUrl + '_point_2'; // VAL - CHANGES from WEB-2178
 
 				originalPoster.type = "1";
 				originalPoster.title = vCopyPostAuthor;
@@ -484,8 +238,6 @@ function main(re, ie, oe, executor) {
 					totalAuthors++;
 				}
 
-
-				Logger.production('VAL_2.2.3_vCopyPostText' + vCopyPostText);
 				var cTopic = {};
 				cTopic.parent_externalId = theTargetID;
 				cTopic.parentObjectType = "4";
@@ -587,8 +339,6 @@ function main(re, ie, oe, executor) {
 				}
 
 			} else if (vPostText) {
-				Logger.production('Im Here - 5');
-				Logger.production('VAL_2.2_vPostText' + vPostText);
 				var topic = {};
 				topic.parent_externalId = theTargetID;
 				topic.parentObjectType = "4";
@@ -602,10 +352,6 @@ function main(re, ie, oe, executor) {
 				topic.extractDate = "";
 				topic.externalId = "postId" + topic.url.match(/wall[\-]*(\d+(\_\d+)?)/g);
 				topic.activityType = "1";
-
-
-				Logger.production('VAL _ aPostUrl = ' + JSON.stringify(topic));
-
 				addEntity(topic);
 
 				if (aPostImg.returnCode === "200") {
@@ -621,20 +367,9 @@ function main(re, ie, oe, executor) {
 					Logger.error("No video for this post.");
 				}
 
-				Logger.production('Im Here - 5.1');
-				Logger.production("comments.returnCode = " + comments.returnCode);
-				Logger.production(JSON.stringify(comments));
-				
-
-				if (comments.returnCode === "200") 
-				{
-					Logger.production('Im Here - 5.2');
+				if (comments.returnCode === "200") {
 					collectComments(topic, comments);
-					Logger.production('Im Here - 5.3');
 				}
-
-				Logger.production('Im Here - 5.4');
-
 				if (likesKeyValue.length > 0) {
 
 					Logger.production("likesKeyValue : " + likesKeyValue);
@@ -681,15 +416,14 @@ function main(re, ie, oe, executor) {
 				}
 
 			}
-			Logger.production('Im Here - 6');
 			Logger.production("__asyncQueue.length = " + __asyncQueue.length);
 
 			var waitCollection = setInterval(function() {
-				if ((__asyncQueue.length === 1)  || (__asyncQueue.length === 0) ) { //VAL LAST CHANGE
+				if (__asyncQueue.length === 1) {
 					clearInterval(waitCollection);
 					removeFromQueue("getPost");
 					cntItems++;
-					Logger.production("We are going to collect next post #" + cntItems);
+					Logger.production("We are going to collect next post");
 					Logger.production("__asyncQueue.length = " + __asyncQueue.length);
 
 				}
@@ -698,92 +432,103 @@ function main(re, ie, oe, executor) {
 			handleExeption(e, "getPost");
 		}
 
-    }
-
-	function getPost(thisNode, parentExternalId) {
-		addToQueue("getPost");
-
-		Logger.production('<------------------- GET POST (NODE)  --------------------- # ' + cntItems);
-			Logger.production(thisNode.innerHTML);
-		Logger.production('<------------------- NODE --------------------->');
-
-        // BEFORE COLLECTING COMMENTS TRY TO EXPAND ALL -----------------------------------------------------
-			var resultPosts = document.evaluate(".//a[contains(text(), 'Show all')] | .//a[contains(text(), 'Show the last')]", thisNode, null, 7, null);
-
-			var len = resultPosts.snapshotLength;
-
-			Logger.production('TP: Found ' + len + " button");
-
-			var moreCommentsFound = (len > 0);
-			
-			
-			Logger.production('TP: moreCommentsFound = ' + moreCommentsFound);
-
-			if (moreCommentsFound)
-			{
-				Logger.production('Lets Expand Comments (more than three)');
-				try {
-						var el = resultPosts.snapshotItem(0); //First element to be processed
-
-						Logger.debug('TP: What is the button?');
-						Logger.debug(el.innerHTML);
+	}
 
 
-						if (el.fireEvent) {
-							Logger.debug('FIRE-1');
-							el.fireEvent('onclick');
-						} else {
-							Logger.debug('FIRE-2');
-							var evObj = document.createEvent('Events');
-							evObj.initEvent("click", true, false);
-							el.dispatchEvent(evObj);
-						}
-						Logger.production("TP:SEEMS CLICKED"); 
-				} catch (e) {
-					Logger.error("VAL CLICK ERROR", "eventFire() :: " + e + " at line " + e.lineNumber);
+	function collectComments(parent, currNode) {
+		addToQueue("collectComments");
+		try {
+			Logger.production(" In collectComments ");
+			var iterator = currNode.Value;
+			var curr = true;
+			var i = 0; //iterator for the comment id
+
+			while (curr) {
+				curr = iterator.iterateNext();
+				if(curr === null){
+					break;
+				}
+				var aCommentImg = _extract.GetCollection({
+						context: curr,
+						xpathName: "aCommentImg",
+						mandatory: "0"
+					}, "aCommentImg");
+
+					var aCommentVideo = _extract.GetCollection({
+						context: curr,
+						xpathName: "aCommentVideo",
+						mandatory: "0"
+					}, "aCommentVideo");
+
+				i++;
+				var commentAuthor = document.evaluate(".//*[@class='reply_author']/a", curr, null, 9, null);
+				var currentComment = document.evaluate(".//*[@class='reply_text']//*[@class='wall_reply_text']", curr, null, 9, null);
+				var currentCommentDate = document.evaluate(".//*[@class='reply_date']//span", curr, null, 9, null);
+				var comment = {};
+				comment.itemType = "3";
+				comment.type = "1";
+				comment.parent_externalId = parent.externalId;
+				comment.parentObjectType = parent.itemType;
+				comment.url = parent.url;
+				comment.writer_externalId = "";
+				comment.writeDate = currentCommentDate.singleNodeValue.textContent;
+				comment.externalId = "comment_id_" + hashCode(comment.url + i);
+
+				var commenter = {};
+				if (commentAuthor.singleNodeValue.textContent) {
+					//commenter.externalId = hashCode(commentAuthor.singleNodeValue.textContent); //VAL
+					commenter.externalId = hashCode(commentAuthor.singleNodeValue.getAttribute("data-from-id")); //VAL
+                    
+                    commenter.sideB_externalId = ommentAuthor.singleNodeValue.getAttribute("data-from-id");// + '_point_2.1'; // VAL - CHANGES from WEB-2178
+
+					//commenter.description = commentAuthor.singleNodeValue.getAttribute("data-from-id") + ' commenter .description line 1249'; //VAL
+
+					if (commentAuthor.singleNodeValue.href) {
+						commenter.url = commentAuthor.singleNodeValue.href;
+					} else {
+						commenter.url = "about:blank";
+					}
+					commenter.itemType = "4";
+					commenter.type = "1";
+					commenter.title = commentAuthor.singleNodeValue.textContent;
+					commenter.activityType = "1";
+
+					comment.writer_externalId = commenter.externalId;
+					if (allPostAuthors.indexOf(commenter.externalId) === -1) {
+						allPostAuthors += commenter.externalId + ";";
+						addEntity(commenter);
+						totalAuthors++;
+					}
+				}
+				
+				if (currentComment.singleNodeValue.textContent) {
+					comment.body = currentComment.singleNodeValue.textContent;
+				}
+				addEntity(comment);
+				if (aCommentImg.returnCode === "200") {
+					collectImage(comment, aCommentImg);
+				}
+				if (aCommentVideo.returnCode === "200") {
+					collectVideo(comment, aCommentVideo);
 				}
 
-				Logger.production('TP: AFTER CLICK'); 
 
-				renderAllComments(thisNode, parentExternalId);
-				Logger.production('TP: After renderAllComments()');
-
-				
-			}else{
-				Logger.debug('TP: NO MORE COMMENTS. ONLY THREE');
-                ProcessComments(thisNode, parentExternalId);
 			}
-        }
-
-
-function renderAllComments(thisNode, parentExternalId){
-	Logger.production('<------------------- GET POST (NODE)  --------------------- # ' + cntItems);
-			Logger.production(thisNode.innerHTML);
-		Logger.production('<------------------- NODE --------------------->');
-	var cnt = 0;
-	Logger.production('Now, ensure that all comments are rendered');
-
-	//var seeAllExpanded = setInterval(function(){
-		cnt++;
-		for(cnt = 0; cnt <= 100000; cnt++){
-		Logger.debug('TP: Interval #' + cnt);
-
-		var postResultPosts = document.evaluate(".//a[contains(text(), 'Hide')]", thisNode, null, 7, null);	
-		Logger.production('TP: HIDE FOUND = ' + postResultPosts.snapshotLength);
-		var keepWaiting = (postResultPosts.snapshotLength == 0);				
-		
-		Logger.debug("TP: keepWaiting = " + keepWaiting);
-
-		if (!keepWaiting)
-		{
-			//clearInterval(seeAllExpanded);
-			Logger.debug('TP: CLEAR INTERVAL Cnt #' + cnt);
-			ProcessComments(thisNode, parentExternalId);
-			break;
+			addEntity({
+				itemType: "24", // Key-Value
+				parent_externalId: parent.externalId,
+				parentObjectType: parent.itemType,
+				activityType: "1", // Integer
+				title: "COMMENTS",
+				body: i,
+				description: "comments_count"
+			});
+			removeFromQueue("collectComments");
+		} catch (e) {
+			handleExeption(e, "collectComments");
 		}
 	}
-	//}, 4000);
-}
+
 
 	function collectImage(parent, currImgNode) {
 
@@ -962,44 +707,76 @@ function renderAllComments(thisNode, parentExternalId){
 
 	}
 
+
+
 	function collectWall(pMarker, pContext) {
 		try {
 			var results = document.evaluate(xpaths.VK_Target.vPosts, document, null, 7, null);
 
+			Logger.production("We have : " + results.snapshotLength + " posts.");
+
 			var postInterval = setInterval(function() {
+
+				Logger.production("1");
 				if (checkAllCollected(collectedResults)) {
-					Logger.production('<==========================');
-						Logger.production('cntItems = ' + cntItems);
-						Logger.production('results.snapshotItem(cntItems) = ' + results.snapshotItem(cntItems).innerHTML);	
-					Logger.production('==========================>');
 
 					var result = results.snapshotItem(cntItems);
-
-					if(result)
-					{
-						Logger.debug("THERE ARE" + results.snapshotLength + " POSST.");
-					}else{
-						Logger.debug('THERE ARE NO POSTS');
-					}
+					Logger.production("2");
 
 					if (!isCollectionLimitReached() && result) {
 
+						Logger.production("3");
+
 						if (debug) Logger.production('Collect post #' + cntItems);
-						Logger.debug('TP: 1 BEFORE getPost()'); 
-								getPost(result, theTargetID); //VAL
-						Logger.debug('TP: 2 AFTER getPost()'); 
+						getPost(result, theTargetID);
+
+
 					} else {
+						Logger.production("4");
 						Logger.production("We reach the maximum number of posts");
 						clearInterval(postInterval);
 						Logger.production(CAName + " End Time: " + new Date());
 						Logger.production('photos url is ' + re.placeholder2);
 						Logger.production('friends url is ' + re.gender);
 						finalize();
+
 					}
+
 				} else {
+					Logger.production("5");
 					Logger.production("checkAllCollected -> working..." + __asyncQueue);
+
 				}
+
 			}, 1000);
+
+			/*if (ttmp.returnCode === "200") {
+				var iterator = ttmp.Value;
+				Logger.production("We have : " + ttmp.Length + " posts. ");
+				var thisNode = iterator.iterateNext();
+				getPost(thisNode, theTargetID);
+
+				var postInterval = setInterval(function () {
+					if (postCollected) {
+						thisNode = iterator.iterateNext();
+						if (thisNode) {
+							cntItems++;
+							getPost(thisNode, theTargetID);
+						} else {
+
+							clearInterval(postInterval);
+							Logger.production(CAName + " End Time: " + new Date());
+							finalize();
+						}
+					}
+				}, 10);
+
+				_res.totalCollected = cntItems;
+				_res.returnCode = "200";
+			} else { //No info found
+				_res.totalCollected = 0;
+				_res.returnCode = "204";
+			}*/
 
 		} catch (e) {
 			handleExeption(e, "collectWall");
@@ -1007,9 +784,11 @@ function renderAllComments(thisNode, parentExternalId){
 
 	}
 
+
+	///////////////////////////////
 	function addToQueue(name) {
 		__asyncQueue.push(name);
-	} 
+	} //VAL13
 
 	function removeFromQueue(name) {
 		var index = __asyncQueue.indexOf(name);
@@ -1025,7 +804,7 @@ function renderAllComments(thisNode, parentExternalId){
 	}
 
 	function isCollectionLimitReached() {
-		if (cntItems >= (maxResultsToCollect-0)) {
+		if (cntItems >= maxResultsToCollect) {
 			executor.reportError('200', 'INFO', "Limit of " + maxResultsToCollect + " results is reached! The flow won't collect more posts where target is tagged results!", false);
 			return true;
 		} else {
@@ -1045,4 +824,7 @@ function renderAllComments(thisNode, parentExternalId){
 		removeFromQueue(name);
 		executor.reportError("500", "ERROR", name + "() :: " + e + " at line " + e.lineNumber, false);
 	}
+
+
+
 }
