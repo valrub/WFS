@@ -5,7 +5,7 @@ function main(re, ie, oe, executor) {//=========================================
 
     if (ie.fullPost == "true") {
         executor.ready();
-    }
+	}
     var WPXP = xpaths.VK_Search_Activities;
 
     executionContext = {
@@ -32,14 +32,24 @@ function main(re, ie, oe, executor) {//=========================================
         Logger.failure(e);
     }
 
+
+    function hashCode(input) {
+        var hash = 0;
+        if (input.length === 0) return hash;
+        for (var i = 0; i < input.length; i++) {
+            var character = input.charCodeAt(i);
+            hash = ((hash << 5) - hash) + character;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+        return hash.toString();
+    }
+
+
+
     function getPosts(pMarker, pContext) {
-        //Logger.production(re.url + " = " + window.location.href);
-        
-        Logger.production("VAL1 - re.url = " + re.url);
-        Logger.production("VAL2 - window.location.href = " + decodeURIComponent(window.location.href));
         
         if(re.url !== window.location.href) {
-            Logger.failure("Sorry, The search results are only available for logged in users. Check the agent!");
+            Logger.failure("The search results are only available for logged in users. Check the agent!");
         }
         
         Logger.production("Start collection");
@@ -136,8 +146,6 @@ function main(re, ie, oe, executor) {//=========================================
                         pMarker + "postUrl"
                     ).Value;
 
-                    Logger.production("VAL13: postUrl = " + postUrl);
-
                     var parentPost = _extract.GetText(
                         {
                             xpathName: "parentPost",
@@ -210,7 +218,11 @@ function main(re, ie, oe, executor) {//=========================================
                     //----------------------Save-writer----------------------
                     var writer = {};
 
-                    writer.externalId = writerId.match(/[0-9]+/)[0];
+                    //writer.externalId = writerId.match(/[0-9]+/)[0]; //VAL
+
+                    writer.sideB_externalId = writerId.match(/[0-9]+/)[0]; //VAL
+                    writer.externalId = hashCode(writer.sideB_externalId); //VAL
+
                     writer.itemType = "4"; // Web entity
                     writer.type = "1"; //Person
                     writer.activityType = "1"; //Social Network
